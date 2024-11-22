@@ -7,27 +7,71 @@ defmodule PlanningPokerWeb.RoomLive.Index do
   end
 
   @impl true
-  def render(assigns) do
-    ~H"""
-    <h2>Distributed scrum planning poker for estimating agile projects.</h2>
-    <p>
-      First person to create the room is the moderator. Share the url or room number with other team members to join the room.
-    </p>
-
-    <div class="flex flex-col items-center space-y-4">
-      <form phx-submit="join_room" class="space-y-4">
-        <div>
-          <label for="room_number">Enter room number</label>
-          <input id="room_number" name="room_number" placeholder="room no" />
-        </div>
-        <button type="submit">Join Room</button>
-      </form>
-    </div>
-    """
+  def handle_event("join_room", %{"room_number" => room_number}, socket) do
+    {:noreply, push_navigate(socket, to: ~p"/#{room_number}")}
   end
 
   @impl true
-  def handle_event("join_room", %{"room_number" => room_number}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/#{room_number}")}
+  def render(assigns) do
+    ~H"""
+    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 xl:px-48 dark:text-white">
+      Distributed scrum planning poker for estimating agile projects.
+    </h2>
+    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
+      First person to create the room is the moderator. Share the url or room number with other team members to join the room.
+    </p>
+
+    <div class="flex flex-col space-y-4 sm:px-16 xl:px-48">
+      <form
+        phx-submit="join_room"
+        class="max-w-sm mx-aut flex items-center w-full max-w-md mb-3 space-x-4"
+      >
+        <div class="mb-5">
+          <label
+            for="room_number"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Enter room number
+          </label>
+          <input
+            type="text"
+            id="room_number"
+            name="room_number"
+            placeholder="e.g. 123456"
+            class="block w-full p-3.5 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-6 py-4 mt-4 mb-2 inline-flex items-center text-center me-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+        >
+          Join Room
+          <svg
+            class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+            />
+          </svg>
+        </button>
+      </form>
+
+      <.link
+        navigate="/rooms/new"
+        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+      >
+        Create new room
+      </.link>
+    </div>
+    """
   end
 end
