@@ -1,4 +1,5 @@
 defmodule PlanningPokerWeb.RoomLive.Index do
+  alias PlanningPoker.Rooms
   use PlanningPokerWeb, :live_view
 
   @impl true
@@ -9,6 +10,12 @@ defmodule PlanningPokerWeb.RoomLive.Index do
   @impl true
   def handle_event("join_room", %{"room_number" => room_number}, socket) do
     {:noreply, push_navigate(socket, to: ~p"/#{room_number}")}
+  end
+
+  @impl true
+  def handle_event("create_room", _, socket) do
+    {:ok, room_id} = Rooms.create_room()
+    {:noreply, push_navigate(socket, to: ~p"/#{room_id}")}
   end
 
   @impl true
@@ -46,7 +53,7 @@ defmodule PlanningPokerWeb.RoomLive.Index do
           type="submit"
           class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-6 py-4 mt-4 mb-2 inline-flex items-center text-center me-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
         >
-          Join Room
+          Join room
           <svg
             class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
             aria-hidden="true"
@@ -65,12 +72,30 @@ defmodule PlanningPokerWeb.RoomLive.Index do
         </button>
       </form>
 
-      <.link
-        navigate="/rooms/new"
-        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-      >
-        Create new room
-      </.link>
+      <div class="">
+        <button
+          type="button"
+          phx-click="create_room"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Create new room
+          <svg
+            class="w-5 h-5 ms-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 12h14m-7 7V5"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
     """
   end

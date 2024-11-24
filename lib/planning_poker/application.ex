@@ -13,6 +13,8 @@ defmodule PlanningPoker.Application do
       {Phoenix.PubSub, name: PlanningPoker.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: PlanningPoker.Finch},
+      {Registry, keys: :unique, name: PlanningPoker.Rooms.Registry},
+      {DynamicSupervisor, strategy: :one_for_one, name: PlanningPoker.Rooms.Supervisor},
       # Start a worker by calling: PlanningPoker.Worker.start_link(arg)
       # {PlanningPoker.Worker, arg},
       # Start to serve requests, typically the last entry
