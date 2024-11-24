@@ -3,6 +3,9 @@ defmodule PlanningPoker.Rooms do
   The Rooms context.
   """
 
+  alias PlanningPoker.Rooms.Server
+  alias PlanningPoker.Rooms.Room
+
   @max_rooms 1000
 
   def create_room() do
@@ -19,8 +22,14 @@ defmodule PlanningPoker.Rooms do
 
   def get_room(room_id) do
     case Registry.lookup(PlanningPoker.Rooms.Registry, room_id) do
-      [{pid, _}] -> {:ok, pid}
-      [] -> {:error, :room_not_found}
+      [{pid, _}] ->
+        case Server.get_room(pid) do
+          %Room{} = room -> {:ok, room}
+          error -> error
+        end
+
+      [] ->
+        {:error, :room_not_found}
     end
   end
 

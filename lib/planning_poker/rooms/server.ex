@@ -22,12 +22,16 @@ defmodule PlanningPoker.Rooms.Server do
     }
   end
 
-  def set_mode(room_server, mode) do
-    GenServer.cast(room_server, {:set_mode, mode})
+  def get_room(room_pid) do
+    GenServer.call(room_pid, :get_room)
   end
 
-  def get_mode(room_server) do
-    GenServer.call(room_server, :get_mode)
+  def set_mode(room_pid, mode) do
+    GenServer.cast(room_pid, {:set_mode, mode})
+  end
+
+  def get_mode(room_pid) do
+    GenServer.call(room_pid, :get_mode)
   end
 
   @impl GenServer
@@ -35,6 +39,11 @@ defmodule PlanningPoker.Rooms.Server do
     IO.puts("Starting Room.Server: \"#{room_id}\"")
     Registry.register(PlanningPoker.Rooms.Registry, room_id, :ok)
     {:ok, Room.new(room_id), @idle_timeout}
+  end
+
+  @impl GenServer
+  def handle_call(:get_room, _, room) do
+    {:reply, room, room, @idle_timeout}
   end
 
   @impl GenServer
