@@ -27,7 +27,41 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     </h2>
     <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
       Mode: <%= @room.mode %>
+      <form phx-change="mode_changed">
+        <input type="hidden" name="room[id]" value={@room.id} />
+        <.input
+          type="select"
+          id="room_mode"
+          name="room[mode]"
+          label="Select a mode"
+          options={mode_options()}
+          value={@room.mode}
+        />
+      </form>
     </p>
     """
+  end
+
+  defp mode_options do
+    [
+      {"Mountain Goat", :mountain_goat},
+      {"Fibonacci", :fibonacci},
+      {"Sequential", :sequential},
+      {"Playing Cards", :playing_cards},
+      {"T-Shirt Sizes", :t_shirt_sizes}
+    ]
+  end
+
+  @impl true
+  def handle_event("mode_changed", %{"room" => %{"id" => room_id, "mode" => new_mode}}, socket) do
+    new_mode_atom = String.to_existing_atom(new_mode)
+
+    case Rooms.set_mode(room_id, new_mode_atom) do
+      :ok ->
+        {:noreply, assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to update mode: #{reason}")}
+    end
   end
 end

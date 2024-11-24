@@ -33,6 +33,16 @@ defmodule PlanningPoker.Rooms do
     end
   end
 
+  def set_mode(room_id, mode) do
+    case Registry.lookup(PlanningPoker.Rooms.Registry, room_id) do
+      [{pid, _}] ->
+        Server.set_mode(pid, mode)
+
+      [] ->
+        {:error, :room_not_found}
+    end
+  end
+
   defp start_room(room_id) do
     DynamicSupervisor.start_child(
       PlanningPoker.Rooms.Supervisor,
