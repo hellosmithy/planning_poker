@@ -19,7 +19,7 @@ defmodule PlanningPoker.MixProject do
   def application do
     [
       mod: {PlanningPoker.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :eex, :wx, :observer, :runtime_tools]
     ]
   end
 
