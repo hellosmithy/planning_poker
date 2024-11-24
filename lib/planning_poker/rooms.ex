@@ -7,15 +7,12 @@ defmodule PlanningPoker.Rooms do
 
   def create_room() do
     with true <- Registry.count(PlanningPoker.Rooms.Registry) < @max_rooms,
-         room_id <- generate_unique_id(),
-         {:ok, _pid} <-
-           DynamicSupervisor.start_child(
-             PlanningPoker.Rooms.Supervisor,
-             {PlanningPoker.Rooms.Server, room_id}
-           ) do
+         {:ok, room_id} <- generate_room_id(),
+         {:ok, _pid} <- start_room(room_id) do
       {:ok, room_id}
     else
       false -> {:error, :room_limit_reached}
+      {:error, :room_id_collision} -> {:error, :room_id_collision}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -25,6 +22,30 @@ defmodule PlanningPoker.Rooms do
       [{pid, _}] -> {:ok, pid}
       [] -> {:error, :room_not_found}
     end
+  end
+
+  defp start_room(room_id) do
+    DynamicSupervisor.start_child(
+      PlanningPoker.Rooms.Supervisor,
+      {PlanningPoker.Rooms.Server, room_id}
+    )
+  end
+
+  defp generate_room_id(retries \\ 5)
+
+  defp generate_room_id(0), do: {:error, :room_id_collision}
+
+  defp generate_room_id(retries) do
+    room_id = generate_unique_id()
+
+    case room_exists?(room_id) do
+      true -> generate_room_id(retries - 1)
+      false -> {:ok, room_id}
+    end
+  end
+
+  defp room_exists?(room_id) do
+    Registry.lookup(PlanningPoker.Rooms.Registry, room_id) != []
   end
 
   defp generate_unique_id do
