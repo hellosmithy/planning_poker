@@ -6,20 +6,17 @@ defmodule PlanningPoker.Rooms do
   @max_rooms 1000
 
   def create_room() do
-    current_rooms = Registry.count(PlanningPoker.Rooms.Registry)
-
-    if current_rooms >= @max_rooms do
-      {:error, :room_limit_reached}
-    else
-      room_id = generate_unique_id()
-
-      {:ok, _pid} =
-        DynamicSupervisor.start_child(
-          PlanningPoker.Rooms.Supervisor,
-          {PlanningPoker.Rooms.Server, room_id}
-        )
-
+    with true <- Registry.count(PlanningPoker.Rooms.Registry) < @max_rooms,
+         room_id <- generate_unique_id(),
+         {:ok, _pid} <-
+           DynamicSupervisor.start_child(
+             PlanningPoker.Rooms.Supervisor,
+             {PlanningPoker.Rooms.Server, room_id}
+           ) do
       {:ok, room_id}
+    else
+      false -> {:error, :room_limit_reached}
+      {:error, reason} -> {:error, reason}
     end
   end
 
