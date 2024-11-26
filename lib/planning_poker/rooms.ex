@@ -4,13 +4,13 @@ defmodule PlanningPoker.Rooms do
   """
 
   alias PlanningPoker.Rooms.Server
-  alias PlanningPoker.Rooms.Room
+  alias PlanningPoker.Rooms.RoomState
 
   def create_room(), do: Server.create_room()
 
   def get_room_state(room_id) do
     case Server.get_state(room_id) do
-      %Room{} = room -> {:ok, room}
+      %RoomState{} = room -> {:ok, room}
       _ -> {:error, :room_not_found}
     end
   end

@@ -1,4 +1,4 @@
-defmodule PlanningPoker.Rooms.Room do
+defmodule PlanningPoker.Rooms.RoomState do
   @moduledoc "Represents a room in Planning Poker."
 
   @type mode :: :mountain_goat | :fibonacci | :sequential | :playing_cards | :t_shirt_sizes

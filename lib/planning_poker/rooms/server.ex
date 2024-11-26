@@ -1,5 +1,5 @@
 defmodule PlanningPoker.Rooms.Server do
-  alias PlanningPoker.Rooms.Room
+  alias PlanningPoker.Rooms.RoomState
 
   use GenServer
 
@@ -82,9 +82,9 @@ defmodule PlanningPoker.Rooms.Server do
 
   @impl GenServer
   def init(room_id) do
-    IO.puts("Starting Room.Server: \"#{room_id}\"")
+    IO.puts("Starting Rooms.Server: \"#{room_id}\"")
     Registry.register(PlanningPoker.Rooms.Registry, room_id, :ok)
-    {:ok, Room.new(room_id), @idle_timeout}
+    {:ok, RoomState.new(room_id), @idle_timeout}
   end
 
   @impl GenServer
@@ -99,13 +99,13 @@ defmodule PlanningPoker.Rooms.Server do
 
   @impl GenServer
   def handle_cast({:set_mode, mode}, room) do
-    new_room = Room.set_mode(room, mode)
+    new_room = RoomState.set_mode(room, mode)
     {:noreply, new_room, @idle_timeout}
   end
 
   @impl true
   def handle_info(:timeout, state) do
-    IO.puts("Terminating Room.Server for room #{state.id} due to inactivity.")
+    IO.puts("Terminating Rooms.Server for room #{state.id} due to inactivity.")
     {:stop, :normal, state}
   end
 end
