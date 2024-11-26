@@ -1,10 +1,12 @@
 defmodule PlanningPoker.Rooms.Server do
   alias PlanningPoker.Rooms.RoomState
+  alias Phoenix.PubSub
 
   use GenServer
 
   @registry PlanningPoker.Rooms.Registry
   @superviser PlanningPoker.Rooms.Supervisor
+  @pubsub_server PlanningPoker.PubSub
   @idle_timeout :timer.minutes(30)
   @max_rooms 1000
 
@@ -99,7 +101,11 @@ defmodule PlanningPoker.Rooms.Server do
 
   @impl GenServer
   def handle_cast({:set_mode, mode}, room) do
-    new_room = RoomState.set_mode(room, mode)
+    new_room =
+      room
+      |> RoomState.set_mode(mode)
+      |> broadcast_room_state()
+
     {:noreply, new_room, @idle_timeout}
   end
 
@@ -107,5 +113,10 @@ defmodule PlanningPoker.Rooms.Server do
   def handle_info(:timeout, state) do
     IO.puts("Terminating Rooms.Server for room #{state.id} due to inactivity.")
     {:stop, :normal, state}
+  end
+
+  defp broadcast_room_state(%RoomState{} = state) do
+    PubSub.broadcast(@pubsub_server, "room:#{state.id}", {:room_state, state})
+    state
   end
 end

@@ -2,9 +2,19 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   use PlanningPokerWeb, :live_view
 
   alias PlanningPoker.Rooms
+  alias PlanningPoker.Rooms.RoomState
+  alias Phoenix.PubSub
+
+  @pubsub_server PlanningPoker.PubSub
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"id" => room_id} = _params, _session, socket) do
+    if connected?(socket) do
+      # Subscribe to room update notifications
+      PubSub.subscribe(@pubsub_server, "room:#{room_id}")
+      # send(self(), :load_game_state)
+    end
+
     {:ok, socket}
   end
 
@@ -63,5 +73,15 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed to update mode: #{reason}")}
     end
+  end
+
+  @impl true
+  def handle_info({:room_state, %RoomState{} = state} = _event, socket) do
+    updated_socket =
+      socket
+      |> clear_flash()
+      |> assign(:room, state)
+
+    {:noreply, updated_socket}
   end
 end
