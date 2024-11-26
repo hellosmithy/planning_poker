@@ -3,14 +3,13 @@ defmodule PlanningPoker.Rooms.Server do
 
   use GenServer
 
+  @registry PlanningPoker.Rooms.Registry
+  @superviser PlanningPoker.Rooms.Supervisor
   @idle_timeout :timer.minutes(30)
+  @max_rooms 1000
 
   def start_link(room_id) do
     GenServer.start_link(__MODULE__, room_id, name: via_tuple(room_id))
-  end
-
-  defp via_tuple(room_id) do
-    {:via, Registry, {PlanningPoker.Rooms.Registry, room_id}}
   end
 
   def child_spec(room_id) do
@@ -22,17 +21,64 @@ defmodule PlanningPoker.Rooms.Server do
     }
   end
 
-  def get_room(room_pid) do
-    GenServer.call(room_pid, :get_room)
+  def create_room() do
+    with true <- Registry.count(PlanningPoker.Rooms.Registry) < @max_rooms,
+         {:ok, room_id} <- generate_room_id(),
+         {:ok, _pid} <- DynamicSupervisor.start_child(@superviser, {__MODULE__, room_id}) do
+      {:ok, room_id}
+    else
+      false -> {:error, :room_limit_reached}
+      {:error, :room_id_collision} -> {:error, :room_id_collision}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
-  def set_mode(room_pid, mode) do
-    GenServer.cast(room_pid, {:set_mode, mode})
+  def get_state(room_id) do
+    case Registry.lookup(@registry, room_id) do
+      [] ->
+        {:error, :room_not_found}
+
+      [{pid, _meta}] ->
+        GenServer.call(pid, :get_room)
+    end
   end
 
-  def get_mode(room_pid) do
-    GenServer.call(room_pid, :get_mode)
+  def set_mode(room_id, mode) do
+    GenServer.cast(via_tuple(room_id), {:set_mode, mode})
   end
+
+  def get_mode(room_id) do
+    GenServer.call(via_tuple(room_id), :get_mode)
+  end
+
+  defp generate_room_id(retries \\ 5)
+
+  defp generate_room_id(0), do: {:error, :room_id_collision}
+
+  defp generate_room_id(retries) do
+    room_id = generate_unique_id()
+
+    case room_exists?(room_id) do
+      true -> generate_room_id(retries - 1)
+      false -> {:ok, room_id}
+    end
+  end
+
+  defp room_exists?(room_id) do
+    Registry.lookup(@registry, room_id) != []
+  end
+
+  defp generate_unique_id do
+    :rand.seed(:exsplus, :os.timestamp())
+    id = :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
+    id
+  end
+
+  def via_tuple(room_id), do: {:via, Registry, {PlanningPoker.Rooms.Registry, room_id}}
+
+  ###
+  ### Server (callbacks)
+  ###
 
   @impl GenServer
   def init(room_id) do

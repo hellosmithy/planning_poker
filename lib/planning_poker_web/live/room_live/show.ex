@@ -10,7 +10,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @impl true
   def handle_params(%{"id" => room_id}, _, socket) do
-    case Rooms.get_room(room_id) do
+    case Rooms.get_room_state(room_id) do
       {:ok, room} ->
         {:noreply, assign(socket, room: room)}
 
@@ -56,7 +56,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   def handle_event("mode_changed", %{"room" => %{"id" => room_id, "mode" => new_mode}}, socket) do
     new_mode_atom = String.to_existing_atom(new_mode)
 
-    case Rooms.set_mode(room_id, new_mode_atom) do
+    case Rooms.set_room_mode(room_id, new_mode_atom) do
       :ok ->
         {:noreply, assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})}
 
