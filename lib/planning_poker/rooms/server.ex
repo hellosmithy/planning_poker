@@ -1,5 +1,6 @@
 defmodule PlanningPoker.Rooms.Server do
   alias PlanningPoker.Rooms.RoomState
+  alias PlanningPoker.Config
   alias Phoenix.PubSub
 
   use GenServer
@@ -8,7 +9,6 @@ defmodule PlanningPoker.Rooms.Server do
   @superviser PlanningPoker.Rooms.Supervisor
   @pubsub_server PlanningPoker.PubSub
   @idle_timeout :timer.minutes(30)
-  @max_rooms 1000
 
   def start_link(room_id) do
     GenServer.start_link(__MODULE__, room_id, name: via_tuple(room_id))
@@ -24,7 +24,7 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   def create_room() do
-    with true <- Registry.count(PlanningPoker.Rooms.Registry) < @max_rooms,
+    with true <- Registry.count(@registry) < max_rooms(),
          {:ok, room_id} <- generate_room_id(),
          {:ok, _pid} <- DynamicSupervisor.start_child(@superviser, {__MODULE__, room_id}) do
       {:ok, room_id}
@@ -76,8 +76,11 @@ defmodule PlanningPoker.Rooms.Server do
     id
   end
 
-  def via_tuple(room_id), do: {:via, Registry, {PlanningPoker.Rooms.Registry, room_id}}
+  defp max_rooms do
+    Config.get_env(:max_rooms, 1000)
+  end
 
+  def via_tuple(room_id), do: {:via, Registry, {PlanningPoker.Rooms.Registry, room_id}}
   ###
   ### Server (callbacks)
   ###

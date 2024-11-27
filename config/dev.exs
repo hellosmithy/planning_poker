@@ -73,3 +73,7 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Max number of rooms in development
+config :planning_poker,
+  max_rooms: 5

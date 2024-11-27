@@ -19,3 +19,8 @@ config :logger, level: :info
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
+
+# Production configuration
+config :planning_poker,
+  # Read from env var in prod, default to 100
+  max_rooms: {:system, "MAX_ROOMS", 1000}

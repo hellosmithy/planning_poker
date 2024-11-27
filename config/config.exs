@@ -8,7 +8,8 @@
 import Config
 
 config :planning_poker,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  max_rooms: {:system, "MAX_ROOMS", 1000}
 
 # Configures the endpoint
 config :planning_poker, PlanningPokerWeb.Endpoint,
