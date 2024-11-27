@@ -37,18 +37,20 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     </h2>
     <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
       Mode: <%= @room.mode %>
-      <form phx-change="mode_changed">
-        <input type="hidden" name="room[id]" value={@room.id} />
-        <.input
-          type="select"
-          id="room_mode"
-          name="room[mode]"
-          label="Select a mode"
-          options={mode_options()}
-          value={@room.mode}
-        />
-      </form>
     </p>
+    <form phx-change="mode_changed">
+      <input type="hidden" name="room[id]" value={@room.id} />
+      <.input
+        type="select"
+        id="room_mode"
+        name="room[mode]"
+        label="Select a mode"
+        options={mode_options()}
+        value={@room.mode}
+        data-value={@room.mode}
+        phx-hook="SyncDataValue"
+      />
+    </form>
     """
   end
 
@@ -65,14 +67,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @impl true
   def handle_event("mode_changed", %{"room" => %{"id" => room_id, "mode" => new_mode}}, socket) do
     new_mode_atom = String.to_existing_atom(new_mode)
-
-    case Rooms.set_room_mode(room_id, new_mode_atom) do
-      :ok ->
-        {:noreply, assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})}
-
-      {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to update mode: #{reason}")}
-    end
+    Rooms.set_room_mode(room_id, new_mode_atom)
+    {:noreply, assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})}
   end
 
   @impl true
