@@ -11,6 +11,7 @@ defmodule PlanningPoker.Application do
       PlanningPokerWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:planning_poker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PlanningPoker.PubSub},
+      PlanningPokerWeb.Presence,
       # Start the Finch HTTP client for sending emails
       {Finch, name: PlanningPoker.Finch},
       {Registry, keys: :unique, name: PlanningPoker.Rooms.Registry},
