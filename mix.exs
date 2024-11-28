@@ -9,7 +9,10 @@ defmodule PlanningPoker.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+        "test.e2e": :test
+      ]
     ]
   end
 
@@ -24,7 +27,7 @@ defmodule PlanningPoker.MixProject do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", "e2e/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
@@ -77,7 +80,8 @@ defmodule PlanningPoker.MixProject do
         "tailwind planning_poker --minify",
         "esbuild planning_poker --minify",
         "phx.digest"
-      ]
+      ],
+      "test.e2e": ["test e2e"]
     ]
   end
 end
