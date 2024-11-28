@@ -38,10 +38,10 @@ Hooks.SyncDataValue = {
 // and push it to the server
 Hooks.GetUserId = {
   mounted() {
-    let userId = sessionStorage.getItem("planning_poker_user_id");
+    let userId = localStorage.getItem("planning_poker_user_id");
     if (!userId) {
       userId = crypto.randomUUID();
-      sessionStorage.setItem("planning_poker_user_id", userId);
+      localStorage.setItem("planning_poker_user_id", userId);
     }
     this.pushEvent("user_id_available", { user_id: userId });
   }

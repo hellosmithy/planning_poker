@@ -53,10 +53,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="mb-4">
         <h3 class="text-lg font-semibold">Connected Users</h3>
         <ul class="list-disc pl-5">
-          <%= for {_socket_id, presence} <- sort_users(@users) do %>
-            <li class="text-sm text-gray-600">
-              <%= presence.metas |> List.first() |> Map.get(:user_id) %>
-            </li>
+          <%= for user_id <- sort_users(@users) do %>
+            <li class="text-sm text-gray-600"><%= user_id %></li>
           <% end %>
         </ul>
       </div>
@@ -130,8 +128,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   end
 
   defp sort_users(users) do
-    Enum.sort_by(users, fn {_, presence} ->
+    users
+    |> Enum.map(fn {_, presence} ->
       presence.metas |> List.first() |> Map.get(:user_id)
     end)
+    |> Enum.uniq()
+    |> Enum.sort()
   end
 end
