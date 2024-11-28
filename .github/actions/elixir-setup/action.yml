@@ -4,19 +4,25 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v3
-    - name: Read Elixir version
-      id: elixir-version
+    - name: Read versions
+      id: versions
       shell: bash
       run: |
         ELIXIR_VERSION=$(grep "^elixir" .tool-versions | cut -d' ' -f2)
         ERLANG_VERSION=$(grep "^erlang" .tool-versions | cut -d' ' -f2)
+        NODE_VERSION=$(cat .node-version)
         echo "elixir=$ELIXIR_VERSION" >> $GITHUB_OUTPUT
         echo "erlang=$ERLANG_VERSION" >> $GITHUB_OUTPUT
+        echo "node=$NODE_VERSION" >> $GITHUB_OUTPUT
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
-        elixir-version: ${{ steps.elixir-version.outputs.elixir }}
-        otp-version: ${{ steps.elixir-version.outputs.erlang }}
+        elixir-version: ${{ steps.versions.outputs.elixir }}
+        otp-version: ${{ steps.versions.outputs.erlang }}
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ steps.versions.outputs.node }}
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
