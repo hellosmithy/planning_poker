@@ -5,7 +5,7 @@ import Config
 config :planning_poker, PlanningPokerWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "T+VY/5wlkkxSV9wRYVTzYMj7hWYawtHz65SqtXNau/9SlxIW74lRsRq/xIGlBd7M",
-  server: false
+  server: true
 
 # In test we don't send emails
 config :planning_poker, PlanningPoker.Mailer, adapter: Swoosh.Adapters.Test
@@ -23,6 +23,13 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
+config :wallaby,
+  otp_app: :planning_poker,
+  driver: Wallaby.Chrome,
+  chrome: [
+    headless: true
+  ]
+
+# Default for tests, individual tests can override this
 config :planning_poker,
-  # Default for tests, individual tests can override this
   max_rooms: 10

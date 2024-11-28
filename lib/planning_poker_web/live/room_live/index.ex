@@ -83,7 +83,7 @@ defmodule PlanningPokerWeb.RoomLive.Index do
         </button>
       </form>
 
-      <div class="">
+      <div>
         <button
           type="button"
           phx-click="create_room"
