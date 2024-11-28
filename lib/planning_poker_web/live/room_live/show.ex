@@ -32,25 +32,27 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 xl:px-48 dark:text-white">
-      Room <%= @room.id %>
-    </h2>
-    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
-      Mode: <%= @room.mode %>
-    </p>
-    <form phx-change="mode_changed">
-      <input type="hidden" name="room[id]" value={@room.id} />
-      <.input
-        type="select"
-        id="room_mode"
-        name="room[mode]"
-        label="Select a mode"
-        options={mode_options()}
-        value={@room.mode}
-        data-value={@room.mode}
-        phx-hook="SyncDataValue"
-      />
-    </form>
+    <div data-room-id={@room.id}>
+      <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 xl:px-48 dark:text-white">
+        Room <%= @room.id %>
+      </h2>
+      <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
+        Mode: <%= @room.mode %>
+      </p>
+      <form phx-change="mode_changed">
+        <input type="hidden" name="room[id]" value={@room.id} />
+        <.input
+          type="select"
+          id="room_mode"
+          name="room[mode]"
+          label="Select a mode"
+          options={mode_options()}
+          value={@room.mode}
+          data-value={@room.mode}
+          phx-hook="SyncDataValue"
+        />
+      </form>
+    </div>
     """
   end
 
