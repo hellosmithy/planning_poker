@@ -1,40 +1,42 @@
-name: Test
-
+name: Tests
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
 env:
   MIX_ENV: test
-
 jobs:
-  test:
-    name: Build and test
+  build:
+    name: Build test environment
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.17.3'
-        otp-version: '27.1.2'
-
-    - name: Restore dependencies cache
-      uses: actions/cache@v3
-      with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
-
-    - name: Install dependencies
-      run: mix deps.get
-
-    - name: Check formatting
-      run: mix format --check-formatted
-
-    - name: Run tests
-      run: mix test
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/elixir-setup
+      - name: Compile project
+        run: mix compile
+  unit-test:
+    needs: build
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/elixir-setup
+      - name: Run tests
+        run: mix test
+  e2e:
+    needs: build
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/elixir-setup
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+      - name: Start ChromeDriver
+        run: |
+          export DISPLAY=:99
+          chromedriver --port=4444 &
+          sudo Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+      - name: Run E2E tests
+        run: mix test.e2e

@@ -1,0 +1,30 @@
+name: 'Setup Elixir'
+description: 'Sets up Elixir environment with caching'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+    - name: Read Elixir version
+      id: elixir-version
+      shell: bash
+      run: |
+        ELIXIR_VERSION=$(grep "^elixir" .tool-versions | cut -d' ' -f2)
+        ERLANG_VERSION=$(grep "^erlang" .tool-versions | cut -d' ' -f2)
+        echo "elixir=$ELIXIR_VERSION" >> $GITHUB_OUTPUT
+        echo "erlang=$ERLANG_VERSION" >> $GITHUB_OUTPUT
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: ${{ steps.elixir-version.outputs.elixir }}
+        otp-version: ${{ steps.elixir-version.outputs.erlang }}
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    - name: Install dependencies
+      shell: bash
+      run: mix deps.get
