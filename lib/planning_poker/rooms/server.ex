@@ -6,7 +6,6 @@ defmodule PlanningPoker.Rooms.Server do
   use GenServer
 
   @registry PlanningPoker.Rooms.Registry
-  @superviser PlanningPoker.Rooms.Supervisor
   @pubsub_server PlanningPoker.PubSub
   @idle_timeout :timer.minutes(30)
 
@@ -23,26 +22,8 @@ defmodule PlanningPoker.Rooms.Server do
     }
   end
 
-  def create_room() do
-    with true <- Registry.count(@registry) < max_rooms(),
-         {:ok, room_id} <- generate_room_id(),
-         {:ok, _pid} <- DynamicSupervisor.start_child(@superviser, {__MODULE__, room_id}) do
-      {:ok, room_id}
-    else
-      false -> {:error, :room_limit_reached}
-      {:error, :room_id_collision} -> {:error, :room_id_collision}
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
   def get_state(room_id) do
-    case Registry.lookup(@registry, room_id) do
-      [] ->
-        {:error, :room_not_found}
-
-      [{pid, _meta}] ->
-        GenServer.call(pid, :get_room)
-    end
+    GenServer.call(via_tuple(room_id), :get_room)
   end
 
   def set_mode(room_id, mode) do
@@ -53,34 +34,18 @@ defmodule PlanningPoker.Rooms.Server do
     GenServer.call(via_tuple(room_id), :get_mode)
   end
 
-  defp generate_room_id(retries \\ 5)
-
-  defp generate_room_id(0), do: {:error, :room_id_collision}
-
-  defp generate_room_id(retries) do
-    room_id = generate_unique_id()
-
-    case room_exists?(room_id) do
-      true -> generate_room_id(retries - 1)
-      false -> {:ok, room_id}
-    end
-  end
-
-  defp room_exists?(room_id) do
-    Registry.lookup(@registry, room_id) != []
-  end
-
-  defp generate_unique_id do
+  def generate_room_id do
     :rand.seed(:exsplus, :os.timestamp())
     id = :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
     id
   end
 
-  defp max_rooms do
+  def max_rooms do
     Config.get_env(:max_rooms, 1000)
   end
 
-  def via_tuple(room_id), do: {:via, Registry, {PlanningPoker.Rooms.Registry, room_id}}
+  def via_tuple(room_id), do: {:via, Registry, {@registry, room_id}}
+
   ###
   ### Server (callbacks)
   ###
@@ -88,7 +53,7 @@ defmodule PlanningPoker.Rooms.Server do
   @impl GenServer
   def init(room_id) do
     IO.puts("Starting Rooms.Server: \"#{room_id}\"")
-    Registry.register(PlanningPoker.Rooms.Registry, room_id, :ok)
+    Registry.register(@registry, room_id, :ok)
     {:ok, RoomState.new(room_id), @idle_timeout}
   end
 

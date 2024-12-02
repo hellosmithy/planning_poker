@@ -2,6 +2,7 @@ defmodule PlanningPoker.Rooms.ServerTest do
   use ExUnit.Case, async: false
   alias PlanningPoker.Rooms.Server
   alias PlanningPoker.Rooms.RoomState
+  alias PlanningPoker.RoomsFixtures
 
   setup do
     # reset the registry before each test
@@ -19,39 +20,19 @@ defmodule PlanningPoker.Rooms.ServerTest do
     :ok
   end
 
-  describe "create_room/0" do
-    test "creates a new room with valid id" do
-      assert {:ok, room_id} = Server.create_room()
-      assert is_binary(room_id)
-      assert String.length(room_id) == 6
-    end
-
-    test "returns error when room limit is reached" do
-      original = Application.get_env(:planning_poker, :max_rooms)
-      Application.put_env(:planning_poker, :max_rooms, 2)
-      on_exit(fn -> Application.put_env(:planning_poker, :max_rooms, original) end)
-
-      {:ok, _} = Server.create_room()
-      {:ok, _} = Server.create_room()
-      assert {:error, :room_limit_reached} = Server.create_room()
-    end
-  end
-
   describe "get_state/1" do
-    test "returns room state for existing room" do
-      {:ok, room_id} = Server.create_room()
-      assert %RoomState{id: ^room_id, mode: :mountain_goat} = Server.get_state(room_id)
+    setup do
+      {:ok, room_id: RoomsFixtures.room_fixture()}
     end
 
-    test "returns error for non-existing room" do
-      assert {:error, :room_not_found} = Server.get_state("000000")
+    test "returns room state for a given room id", %{room_id: room_id} do
+      assert %RoomState{id: ^room_id, mode: :mountain_goat} = Server.get_state(room_id)
     end
   end
 
   describe "mode operations" do
     setup do
-      {:ok, room_id} = Server.create_room()
-      {:ok, room_id: room_id}
+      {:ok, room_id: RoomsFixtures.room_fixture()}
     end
 
     test "set_mode/2 updates room mode", %{room_id: room_id} do
@@ -65,9 +46,11 @@ defmodule PlanningPoker.Rooms.ServerTest do
   end
 
   describe "room lifecycle" do
-    test "room terminates after idle timeout" do
-      {:ok, room_id} = Server.create_room()
+    setup do
+      {:ok, room_id: RoomsFixtures.room_fixture()}
+    end
 
+    test "room terminates after idle timeout", %{room_id: room_id} do
       # Get the PID of the room server
       [{pid, _}] = Registry.lookup(PlanningPoker.Rooms.Registry, room_id)
 
