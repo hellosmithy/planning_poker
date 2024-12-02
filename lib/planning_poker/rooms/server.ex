@@ -35,9 +35,7 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   def generate_room_id do
-    :rand.seed(:exsplus, :os.timestamp())
-    id = :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
-    id
+    :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
   end
 
   def max_rooms do
