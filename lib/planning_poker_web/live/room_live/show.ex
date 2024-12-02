@@ -46,7 +46,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   def render(assigns) do
     ~H"""
     <div id="room" data-room-id={@room.id} phx-hook="GetUserId">
-      <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 xl:px-48 dark:text-white">
+      <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 dark:text-white">
         Room <%= @room.id %>
       </h2>
 
@@ -59,7 +59,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         </ul>
       </div>
 
-      <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
+      <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
         Mode: <%= @room.mode %>
       </p>
       <form phx-change="mode_changed">

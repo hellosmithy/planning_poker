@@ -32,14 +32,14 @@ defmodule PlanningPokerWeb.RoomLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 xl:px-48 dark:text-white">
+    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 dark:text-white">
       Distributed scrum planning poker for estimating agile projects.
     </h2>
-    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
+    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
       First person to create the room is the moderator. Share the url or room number with other team members to join the room.
     </p>
 
-    <div class="flex flex-col space-y-4 sm:px-16 xl:px-48">
+    <div class="flex flex-col space-y-4 sm:px-16">
       <form
         phx-submit="join_room"
         class="max-w-sm mx-aut flex items-center w-full max-w-md mb-3 space-x-4"
