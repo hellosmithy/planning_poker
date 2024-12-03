@@ -76,4 +76,4 @@ config :swoosh, :api_client, false
 
 # Max number of rooms in development
 config :planning_poker,
-  max_rooms: 5
+  max_rooms: 100

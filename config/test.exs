@@ -32,4 +32,4 @@ config :wallaby,
 
 # Default for tests, individual tests can override this
 config :planning_poker,
-  max_rooms: 10
+  max_rooms: 100
