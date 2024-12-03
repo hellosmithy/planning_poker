@@ -23,15 +23,11 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   def get_state(room_id) do
-    GenServer.call(via_tuple(room_id), :get_room)
+    GenServer.call(via_tuple(room_id), :get_room_state)
   end
 
-  def set_mode(room_id, mode) do
-    GenServer.cast(via_tuple(room_id), {:set_mode, mode})
-  end
-
-  def get_mode(room_id) do
-    GenServer.call(via_tuple(room_id), :get_mode)
+  def update_state(room_id, partial_room_state) do
+    GenServer.cast(via_tuple(room_id), {:update_room_state, partial_room_state})
   end
 
   def generate_room_id do
@@ -56,20 +52,15 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   @impl GenServer
-  def handle_call(:get_room, _, room) do
+  def handle_call(:get_room_state, _, room) do
     {:reply, room, room, @idle_timeout}
   end
 
   @impl GenServer
-  def handle_call(:get_mode, _, room) do
-    {:reply, room.mode, room, @idle_timeout}
-  end
-
-  @impl GenServer
-  def handle_cast({:set_mode, mode}, room) do
+  def handle_cast({:update_room_state, partial_room_state}, room) do
     new_room =
       room
-      |> RoomState.set_mode(mode)
+      |> RoomState.update(partial_room_state)
       |> broadcast_room_state()
 
     {:noreply, new_room, @idle_timeout}

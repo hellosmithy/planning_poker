@@ -30,18 +30,14 @@ defmodule PlanningPoker.Rooms.ServerTest do
     end
   end
 
-  describe "mode operations" do
+  describe "update_state/2" do
     setup do
       {:ok, room_id: RoomsFixtures.room_fixture()}
     end
 
-    test "set_mode/2 updates room mode", %{room_id: room_id} do
-      Server.set_mode(room_id, :fibonacci)
-      assert :fibonacci = Server.get_mode(room_id)
-    end
-
-    test "get_mode/1 returns current mode", %{room_id: room_id} do
-      assert :mountain_goat = Server.get_mode(room_id)
+    test "updates room state", %{room_id: room_id} do
+      Server.update_state(room_id, %{mode: :fibonacci})
+      assert %RoomState{id: ^room_id, mode: :fibonacci} = Server.get_state(room_id)
     end
   end
 

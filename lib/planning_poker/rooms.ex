@@ -28,7 +28,7 @@ defmodule PlanningPoker.Rooms do
     end
   end
 
-  def set_room_mode(room_id, mode), do: Server.set_mode(room_id, mode)
+  def set_room_mode(room_id, mode), do: Server.update_state(room_id, %{mode: mode})
 
   defp generate_room_id(retries \\ 5)
 

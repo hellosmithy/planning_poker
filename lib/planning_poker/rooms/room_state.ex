@@ -13,6 +13,11 @@ defmodule PlanningPoker.Rooms.RoomState do
     %__MODULE__{id: id, mode: :mountain_goat}
   end
 
+  @spec update(t, map()) :: t
+  def update(%__MODULE__{} = room, partial_room_state) do
+    struct(room, partial_room_state)
+  end
+
   @spec set_mode(t, mode) :: t
   def set_mode(%__MODULE__{} = room, mode) when mode in @modes do
     %__MODULE__{room | mode: mode}
