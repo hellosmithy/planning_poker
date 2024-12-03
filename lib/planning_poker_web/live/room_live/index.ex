@@ -14,18 +14,22 @@ defmodule PlanningPokerWeb.RoomLive.Index do
 
   @impl true
   def handle_event("create_room", _, socket) do
+    {:noreply, create_room(socket)}
+  end
+
+  defp create_room(socket) do
     case Rooms.create_room() do
       {:ok, room_id} ->
         # Success: Navigate to the new room
-        {:noreply, push_navigate(socket, to: ~p"/#{room_id}")}
+        push_navigate(socket, to: ~p"/#{room_id}")
 
       {:error, :room_limit_reached} ->
         # Failure: Notify the user
-        {:noreply, put_flash(socket, :error, "Room limit reached. Please try again later.")}
+        put_flash(socket, :error, "Room limit reached. Please try again later.")
 
       {:error, reason} ->
         # General error handling
-        {:noreply, put_flash(socket, :error, "Failed to create room: #{inspect(reason)}")}
+        put_flash(socket, :error, "Failed to create room: #{inspect(reason)}")
     end
   end
 
