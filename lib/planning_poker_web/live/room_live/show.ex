@@ -4,28 +4,25 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   alias PlanningPoker.Rooms
   alias PlanningPoker.Rooms.RoomState
   alias PlanningPokerWeb.Presence
+  alias Phoenix.LiveView.Socket
   alias Phoenix.PubSub
 
   @pubsub_server PlanningPoker.PubSub
 
+  ###
+  ### Lifecycle
+  ###
+
   @impl true
   def mount(%{"id" => room_id}, _session, socket) do
     if connected?(socket) do
-      topic = "room:#{room_id}"
+      topic = get_presence_topic(room_id)
       PubSub.subscribe(@pubsub_server, topic)
 
-      {:ok, _} =
-        Presence.track(
-          self(),
-          topic,
-          "user-#{socket.id}",
-          %{
-            joined_at: inspect(System.system_time(:second)),
-            user_id: nil
-          }
-        )
-
-      {:ok, assign(socket, :users, Presence.list(topic))}
+      {:ok,
+       socket
+       |> presence_track_user(topic)
+       |> presence_assign_users(topic)}
     else
       {:ok, assign(socket, :users, %{})}
     end
@@ -53,8 +50,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="mb-4">
         <h3 class="text-lg font-semibold">Connected Users</h3>
         <ul class="list-disc pl-5">
-          <%= for user_id <- sort_users(@users) do %>
-            <li class="text-sm text-gray-600"><%= user_id %></li>
+          <%= for user <- sorted_users(@users) do %>
+            <li class="text-sm text-gray-600"><%= user.user_id %></li>
           <% end %>
         </ul>
       </div>
@@ -63,7 +60,6 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         Mode: <%= @room.mode %>
       </p>
       <form phx-change="mode_changed">
-        <input type="hidden" name="room[id]" value={@room.id} />
         <.input
           type="select"
           id="room_mode"
@@ -79,35 +75,18 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     """
   end
 
-  defp mode_options do
-    [
-      {"Mountain Goat", :mountain_goat},
-      {"Fibonacci", :fibonacci},
-      {"Sequential", :sequential},
-      {"Playing Cards", :playing_cards},
-      {"T-Shirt Sizes", :t_shirt_sizes}
-    ]
+  ###
+  ### Event handlers
+  ###
+
+  @impl true
+  def handle_event("mode_changed", %{"room" => %{"mode" => new_mode}}, socket) do
+    {:noreply, set_room_mode(socket, new_mode)}
   end
 
   @impl true
-  def handle_event("mode_changed", %{"room" => %{"id" => room_id, "mode" => new_mode}}, socket) do
-    new_mode_atom = String.to_existing_atom(new_mode)
-    Rooms.set_room_mode(room_id, new_mode_atom)
-    {:noreply, assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})}
-  end
-
-  @impl true
-  def handle_event("user_id_available", %{"user_id" => user_id}, socket) do
-    topic = "room:#{socket.assigns.room.id}"
-
-    Presence.update(
-      self(),
-      topic,
-      "user-#{socket.id}",
-      &Map.put(&1, :user_id, user_id)
-    )
-
-    {:noreply, socket}
+  def handle_event("local_session_id_available", %{"user_id" => user_id}, socket) do
+    {:noreply, presence_add_active_user(socket, user_id)}
   end
 
   @impl true
@@ -122,17 +101,82 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @impl true
   def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
-    # You can get the current users like this:
-    users = Presence.list("room:#{socket.assigns.room.id}")
-    {:noreply, assign(socket, :users, users)}
+    {:noreply, socket |> assign_user_list()}
   end
 
-  defp sort_users(users) do
+  ###
+  ### Private functions
+  ###
+
+  @spec mode_options() :: [{String.t(), atom()}]
+  defp mode_options do
+    [
+      {"Mountain Goat", :mountain_goat},
+      {"Fibonacci", :fibonacci},
+      {"Sequential", :sequential},
+      {"Playing Cards", :playing_cards},
+      {"T-Shirt Sizes", :t_shirt_sizes}
+    ]
+  end
+
+  @spec get_presence_topic(room_id_or_socket :: String.t() | Socket.t()) :: String.t()
+  defp get_presence_topic(%Socket{} = socket), do: get_presence_topic(socket.assigns.room.id)
+  defp get_presence_topic(room_id), do: "room:#{room_id}"
+
+  @spec assign_user_list(socket :: Socket.t()) :: Socket.t()
+  defp assign_user_list(socket) do
+    assign(socket, :users, Presence.list(get_presence_topic(socket)))
+  end
+
+  @spec sorted_users(users :: Phoenix.Presence.presences()) :: [map()]
+  defp sorted_users(users) do
     users
     |> Enum.map(fn {_, presence} ->
-      presence.metas |> List.first() |> Map.get(:user_id)
+      presence.metas |> List.first()
     end)
-    |> Enum.uniq()
-    |> Enum.sort()
+    |> Enum.uniq_by(& &1.user_id)
+    |> Enum.sort_by(& &1.user_id)
+  end
+
+  @spec set_room_mode(socket :: Socket.t(), new_mode :: String.t()) :: Socket.t()
+  defp set_room_mode(socket, new_mode) do
+    new_mode_atom = String.to_existing_atom(new_mode)
+    Rooms.set_room_mode(socket.assigns.room.id, new_mode_atom)
+    assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})
+  end
+
+  @spec presence_add_active_user(socket :: Socket.t(), user_id :: String.t()) :: Socket.t()
+  defp presence_add_active_user(socket, user_id) do
+    topic = get_presence_topic(socket)
+
+    Presence.update(
+      self(),
+      topic,
+      "user-#{socket.id}",
+      &Map.put(&1, :user_id, user_id)
+    )
+
+    socket
+  end
+
+  @spec presence_track_user(socket :: Socket.t(), topic :: String.t()) :: Socket.t()
+  defp presence_track_user(socket, topic) do
+    {:ok, _} =
+      Presence.track(
+        self(),
+        topic,
+        "user-#{socket.id}",
+        %{
+          joined_at: inspect(System.system_time(:second)),
+          user_id: nil
+        }
+      )
+
+    socket
+  end
+
+  @spec presence_assign_users(socket :: Socket.t(), topic :: String.t()) :: Socket.t()
+  defp presence_assign_users(socket, topic) do
+    assign(socket, :users, Presence.list(topic))
   end
 end

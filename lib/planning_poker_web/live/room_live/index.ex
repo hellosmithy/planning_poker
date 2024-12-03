@@ -2,35 +2,13 @@ defmodule PlanningPokerWeb.RoomLive.Index do
   alias PlanningPoker.Rooms
   use PlanningPokerWeb, :live_view
 
+  ###
+  ### Lifecycle
+  ###
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok, socket}
-  end
-
-  @impl true
-  def handle_event("join_room", %{"room_number" => room_number}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/#{room_number}")}
-  end
-
-  @impl true
-  def handle_event("create_room", _, socket) do
-    {:noreply, create_room(socket)}
-  end
-
-  defp create_room(socket) do
-    case Rooms.create_room() do
-      {:ok, room_id} ->
-        # Success: Navigate to the new room
-        push_navigate(socket, to: ~p"/#{room_id}")
-
-      {:error, :room_limit_reached} ->
-        # Failure: Notify the user
-        put_flash(socket, :error, "Room limit reached. Please try again later.")
-
-      {:error, reason} ->
-        # General error handling
-        put_flash(socket, :error, "Failed to create room: #{inspect(reason)}")
-    end
   end
 
   @impl true
@@ -113,5 +91,39 @@ defmodule PlanningPokerWeb.RoomLive.Index do
       </div>
     </div>
     """
+  end
+
+  ###
+  ### Event handlers
+  ###
+
+  @impl true
+  def handle_event("join_room", %{"room_number" => room_number}, socket) do
+    {:noreply, push_navigate(socket, to: ~p"/#{room_number}")}
+  end
+
+  @impl true
+  def handle_event("create_room", _, socket) do
+    {:noreply, create_room(socket)}
+  end
+
+  ###
+  ### Private functions
+  ###
+
+  defp create_room(socket) do
+    case Rooms.create_room() do
+      {:ok, room_id} ->
+        # Success: Navigate to the new room
+        push_navigate(socket, to: ~p"/#{room_id}")
+
+      {:error, :room_limit_reached} ->
+        # Failure: Notify the user
+        put_flash(socket, :error, "Room limit reached. Please try again later.")
+
+      {:error, reason} ->
+        # General error handling
+        put_flash(socket, :error, "Failed to create room: #{inspect(reason)}")
+    end
   end
 end

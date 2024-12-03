@@ -43,7 +43,7 @@ Hooks.GetUserId = {
       userId = crypto.randomUUID();
       localStorage.setItem("planning_poker_user_id", userId);
     }
-    this.pushEvent("user_id_available", { user_id: userId });
+    this.pushEvent("local_session_id_available", { user_id: userId });
   }
 };
 
