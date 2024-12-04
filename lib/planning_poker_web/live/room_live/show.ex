@@ -104,8 +104,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   end
 
   @impl true
-  def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
-    {:noreply, socket |> assign_user_list()}
+  def handle_info(%{event: "presence_diff", payload: payload}, socket) do
+    Logger.debug("Presence #{socket.assigns.topic} (joins): #{inspect(payload.joins)}")
+    Logger.debug("Presence #{socket.assigns.topic} (leaves): #{inspect(payload.leaves)}")
+
+    {:noreply, assign_user_list(socket)}
   end
 
   ###
@@ -162,7 +165,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @spec presence_track_user(topic :: String.t(), user_id :: String.t()) ::
           {:ok, ref :: binary()} | {:error, reason :: term()}
   defp presence_track_user(topic, user_id) do
-    Logger.info("Presence tracking user: #{user_id}")
+    Logger.debug("Presence tracking user: #{user_id}")
 
     Presence.track(
       self(),
