@@ -7,6 +7,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   alias Phoenix.LiveView.Socket
   alias Phoenix.PubSub
 
+  require Logger
+
   @pubsub_server PlanningPoker.PubSub
 
   ###
@@ -16,13 +18,15 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @impl true
   def mount(%{"id" => room_id}, _session, socket) do
     if connected?(socket) do
-      topic = get_presence_topic(room_id)
+      topic = "room:#{room_id}"
       PubSub.subscribe(@pubsub_server, topic)
+      # TODO: get user_id
+      presence_track_user(topic, "user-#{socket.id}")
 
       {:ok,
        socket
-       |> presence_track_user(topic)
-       |> presence_assign_users(topic)}
+       |> assign(:topic, topic)
+       |> assign_user_list()}
     else
       {:ok, assign(socket, :users, %{})}
     end
@@ -119,13 +123,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     ]
   end
 
-  @spec get_presence_topic(room_id_or_socket :: String.t() | Socket.t()) :: String.t()
-  defp get_presence_topic(%Socket{} = socket), do: get_presence_topic(socket.assigns.room.id)
-  defp get_presence_topic(room_id), do: "room:#{room_id}"
-
   @spec assign_user_list(socket :: Socket.t()) :: Socket.t()
   defp assign_user_list(socket) do
-    assign(socket, :users, Presence.list(get_presence_topic(socket)))
+    assign(socket, :users, Presence.list(socket.assigns.topic))
   end
 
   @spec sorted_users(users :: Phoenix.Presence.presences()) :: [map()]
@@ -147,7 +147,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @spec presence_add_active_user(socket :: Socket.t(), user_id :: String.t()) :: Socket.t()
   defp presence_add_active_user(socket, user_id) do
-    topic = get_presence_topic(socket)
+    topic = socket.assigns.topic
 
     Presence.update(
       self(),
@@ -159,24 +159,19 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     socket
   end
 
-  @spec presence_track_user(socket :: Socket.t(), topic :: String.t()) :: Socket.t()
-  defp presence_track_user(socket, topic) do
-    {:ok, _} =
-      Presence.track(
-        self(),
-        topic,
-        "user-#{socket.id}",
-        %{
-          joined_at: inspect(System.system_time(:second)),
-          user_id: nil
-        }
-      )
+  @spec presence_track_user(topic :: String.t(), user_id :: String.t()) ::
+          {:ok, ref :: binary()} | {:error, reason :: term()}
+  defp presence_track_user(topic, user_id) do
+    Logger.info("Presence tracking user: #{user_id}")
 
-    socket
-  end
-
-  @spec presence_assign_users(socket :: Socket.t(), topic :: String.t()) :: Socket.t()
-  defp presence_assign_users(socket, topic) do
-    assign(socket, :users, Presence.list(topic))
+    Presence.track(
+      self(),
+      topic,
+      user_id,
+      %{
+        joined_at: inspect(System.system_time(:second)),
+        user_id: nil
+      }
+    )
   end
 end
