@@ -1,6 +1,5 @@
 defmodule PlanningPoker.Rooms.Server do
   alias PlanningPoker.Rooms.RoomState
-  alias PlanningPoker.Config
   alias Phoenix.PubSub
 
   use GenServer
@@ -35,7 +34,7 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   def max_rooms do
-    Config.get_env(:max_rooms, 1000)
+    Application.get_env(:planning_poker, :max_rooms, 1000)
   end
 
   def via_tuple(room_id), do: {:via, Registry, {@registry, room_id}}

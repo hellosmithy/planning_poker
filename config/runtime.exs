@@ -99,4 +99,8 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+
+  # Set max_rooms from environment variable if present, otherwise use default
+  config :planning_poker,
+    max_rooms: String.to_integer(System.get_env("MAX_ROOMS", "1000"))
 end

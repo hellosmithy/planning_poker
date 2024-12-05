@@ -29,7 +29,3 @@ config :wallaby,
   chrome: [
     headless: true
   ]
-
-# Default for tests, individual tests can override this
-config :planning_poker,
-  max_rooms: 100
