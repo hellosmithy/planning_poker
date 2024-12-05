@@ -61,7 +61,8 @@ defmodule PlanningPoker.MixProject do
       {:bandit, "~> 1.5"},
 
       # Test
-      {:wallaby, "~> 0.30", runtime: false, only: :test}
+      {:wallaby, "~> 0.30", runtime: false, only: :test},
+      {:mimic, "~> 1.10", only: :test}
     ]
   end
 

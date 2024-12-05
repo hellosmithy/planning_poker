@@ -1,6 +1,9 @@
 defmodule PlanningPoker.RoomsTest do
   use ExUnit.Case, async: false
+  use Mimic
+
   alias PlanningPoker.Rooms
+  alias PlanningPoker.Rooms.Server
   alias PlanningPoker.Rooms.RoomState
 
   setup do
@@ -33,6 +36,27 @@ defmodule PlanningPoker.RoomsTest do
 
       assert {:ok, _room_id} = Rooms.create_room()
       assert {:error, :room_limit_reached} = Rooms.create_room()
+    end
+
+    test "retries 5 times generating room id when collision occurs" do
+      Server
+      |> expect(:generate_room_id, 5, fn -> "111111" end)
+      |> expect(:generate_room_id, 1, fn -> "222222" end)
+
+      assert {:ok, "111111"} = Rooms.create_room()
+      assert {:ok, "222222"} = Rooms.create_room()
+
+      verify!()
+    end
+
+    test "returns error when room id collision occurs more than 5 times" do
+      Server
+      |> expect(:generate_room_id, 6, fn -> "333333" end)
+
+      assert {:ok, "333333"} = Rooms.create_room()
+      assert {:error, :room_id_collision} = Rooms.create_room()
+
+      verify!()
     end
   end
 

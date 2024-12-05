@@ -1,3 +1,6 @@
+# Mocks
+Mimic.copy(PlanningPoker.Rooms.Server)
+
 # Start ExUnit
 ExUnit.start()
 
