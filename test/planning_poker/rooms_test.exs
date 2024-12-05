@@ -30,9 +30,8 @@ defmodule PlanningPoker.RoomsTest do
     end
 
     test "returns error when room limit is reached" do
-      original_max_rooms = Application.get_env(:planning_poker, :max_rooms)
-      Application.put_env(:planning_poker, :max_rooms, 1)
-      on_exit(fn -> Application.put_env(:planning_poker, :max_rooms, original_max_rooms) end)
+      Server
+      |> stub(:max_rooms, fn -> 1 end)
 
       assert {:ok, _room_id} = Rooms.create_room()
       assert {:error, :room_limit_reached} = Rooms.create_room()
