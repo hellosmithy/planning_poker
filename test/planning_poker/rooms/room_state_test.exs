@@ -1,5 +1,5 @@
 defmodule PlanningPoker.Rooms.RoomStateTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias PlanningPoker.Rooms.RoomState
 
   describe "new/1" do

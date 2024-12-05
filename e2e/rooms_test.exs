@@ -1,5 +1,5 @@
 defmodule PlanningPoker.E2E.RoomsTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Wallaby.Feature
 
   import PlanningPoker.E2E.Fixtures
