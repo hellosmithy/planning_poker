@@ -2,6 +2,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   use PlanningPokerWeb, :live_view
 
   alias PlanningPoker.Rooms
+  alias PlanningPoker.Rooms.Decks
   alias PlanningPoker.Rooms.RoomState
   alias PlanningPokerWeb.Presence
   alias Phoenix.LiveView.Socket
@@ -80,6 +81,14 @@ defmodule PlanningPokerWeb.RoomLive.Show do
           phx-hook="SyncDataValue"
         />
       </form>
+
+      <div class="flex flex-wrap gap-4">
+        <%= for {label, value} <- get_cards(@room.deck) do %>
+          <div class="flex items-center gap-2 border border-gray-200 rounded-lg p-2 text-gray-100">
+            <%= label %>
+          </div>
+        <% end %>
+      </div>
     </div>
     """
   end
@@ -156,5 +165,10 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       user_id,
       %{joined_at: inspect(System.system_time(:second))}
     )
+  end
+
+  @spec get_cards(deck :: Decks.t()) :: [{String.t(), integer() | nil}]
+  defp get_cards({_, cards}) do
+    cards
   end
 end
