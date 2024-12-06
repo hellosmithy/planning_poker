@@ -82,9 +82,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         />
       </form>
 
-      <div class="flex flex-wrap gap-4">
+      <div class="flex flex-wrap gap-4 py-8">
         <%= for {label, value} <- get_cards(@room.deck) do %>
-          <div class="flex items-center gap-2 border border-gray-200 rounded-lg p-2 text-gray-100">
+          <div class="block w-14 h-20 text-center flex items-center justify-center border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white">
             <%= label %>
           </div>
         <% end %>
