@@ -34,19 +34,6 @@ Hooks.SyncDataValue = {
   }
 };
 
-// Hook to get the user id from the session storage
-// and push it to the server
-Hooks.GetUserId = {
-  mounted() {
-    let userId = localStorage.getItem("planning_poker_user_id");
-    if (!userId) {
-      userId = crypto.randomUUID();
-      localStorage.setItem("planning_poker_user_id", userId);
-    }
-    this.pushEvent("local_session_id_available", { user_id: userId });
-  }
-};
-
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,

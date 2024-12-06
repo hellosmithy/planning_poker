@@ -58,6 +58,7 @@ defmodule PlanningPoker.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
+      {:nanoid, "~> 2.1.0"},
 
       # Test
       {:wallaby, "~> 0.30", runtime: false, only: :test},

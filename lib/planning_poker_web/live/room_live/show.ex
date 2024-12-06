@@ -16,17 +16,24 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   ###
 
   @impl true
-  def mount(%{"id" => room_id}, _session, socket) do
+  def mount(%{"id" => room_id}, session, socket) do
+    user_id = session["user_id"]
+
     if connected?(socket) do
       topic = "room:#{room_id}"
       PubSub.subscribe(@pubsub_server, topic)
+      presence_track_user(topic, user_id)
 
       {:ok,
        socket
+       |> assign(:user_id, user_id)
        |> assign(:topic, topic)
        |> assign_user_list()}
     else
-      {:ok, assign(socket, :users, %{})}
+      {:ok,
+       socket
+       |> assign(:user_id, user_id)
+       |> assign(:users, %{})}
     end
   end
 
@@ -84,12 +91,6 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @impl true
   def handle_event("mode_changed", %{"room" => %{"mode" => new_mode}}, socket) do
     {:noreply, set_room_mode(socket, new_mode)}
-  end
-
-  @impl true
-  def handle_event("local_session_id_available", %{"user_id" => user_id}, socket) do
-    presence_track_user(socket.assigns.topic, user_id)
-    {:noreply, socket |> assign(:user_id, user_id)}
   end
 
   @impl true

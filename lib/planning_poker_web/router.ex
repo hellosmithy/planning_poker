@@ -4,6 +4,7 @@ defmodule PlanningPokerWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug PlanningPokerWeb.Plugs.SessionUserId
     plug :fetch_live_flash
     plug :put_root_layout, html: {PlanningPokerWeb.Layouts, :root}
     plug :protect_from_forgery
