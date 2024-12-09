@@ -83,11 +83,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </form>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <%= for {label, value} <- get_cards(@room.deck) do %>
-          <div class="block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white">
-            <%= label %>
-          </div>
-        <% end %>
+        <div
+          :for={{label, value} <- get_cards(@room.deck)}
+          class="block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white"
+        >
+          <%= label %>
+        </div>
       </div>
 
       <div>
@@ -97,10 +98,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <%= for user_id <- get_user_ids(@users) do %>
-          <div class="block w-14 h-20 flex items-center justify-center border-gray-500 border rounded-sm shadow">
-          </div>
-        <% end %>
+        <div
+          :for={user_id <- get_user_ids(@users)}
+          class="block w-14 h-20 flex items-center justify-center border-gray-500 border rounded-sm shadow"
+        >
+        </div>
       </div>
 
       <div class="flex gap-4 py-8">
