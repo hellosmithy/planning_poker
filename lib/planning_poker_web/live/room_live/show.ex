@@ -84,10 +84,69 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
       <div class="flex flex-wrap gap-4 py-8">
         <%= for {label, value} <- get_cards(@room.deck) do %>
-          <div class="block w-14 h-20 text-center flex items-center justify-center border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white">
+          <div class="block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white">
             <%= label %>
           </div>
         <% end %>
+      </div>
+
+      <div>
+        <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
+          You haven't estimated yet
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-4 py-8">
+        <%= for user_id <- get_user_ids(@users) do %>
+          <div class="block w-14 h-20 flex items-center justify-center border-gray-500 border rounded-sm shadow">
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex gap-4 py-8">
+        <button
+          type="button"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Reset
+          <svg
+            class="w-5 h-5 ms-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Reveal
+          <svg
+            class="w-5 h-5 ms-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     """
