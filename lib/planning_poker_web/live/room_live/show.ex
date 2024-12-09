@@ -1,14 +1,16 @@
 defmodule PlanningPokerWeb.RoomLive.Show do
   use PlanningPokerWeb, :live_view
 
+  require Logger
+
+  import PlanningPokerWeb.RoomLive.Components.Cards
+
   alias PlanningPoker.Rooms
   alias PlanningPoker.Rooms.Decks
   alias PlanningPoker.Rooms.RoomState
   alias PlanningPokerWeb.Presence
   alias Phoenix.LiveView.Socket
   alias Phoenix.PubSub
-
-  require Logger
 
   @pubsub_server PlanningPoker.PubSub
 
@@ -29,11 +31,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
        socket
        |> assign(:user_id, user_id)
        |> assign(:topic, topic)
+       |> assign(:selected_card_id, nil)
        |> assign_user_list()}
     else
       {:ok,
        socket
        |> assign(:user_id, user_id)
+       |> assign(:selected_card_id, nil)
        |> assign(:users, %{})}
     end
   end
@@ -83,12 +87,22 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </form>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <div
+        <.card
+          :for={card <- get_cards(@room.deck)}
+          phx-click="select_card"
+          phx-value-id={card.id}
+          selected?={@selected_card_id == card.id}
+        >
+          <%= card.label %>
+        </.card>
+        <%!-- <button
           :for={{label, value} <- get_cards(@room.deck)}
           class="block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white"
+          phx-click="select_card"
+          data-value={value}
         >
           <%= label %>
-        </div>
+        </button> --%>
       </div>
 
       <div>
@@ -99,7 +113,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
       <div class="flex flex-wrap gap-4 py-8">
         <div
-          :for={user_id <- get_user_ids(@users)}
+          :for={_user_id <- get_user_ids(@users)}
           class="block w-14 h-20 flex items-center justify-center border-gray-500 border rounded-sm shadow"
         >
         </div>
@@ -162,6 +176,14 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   def handle_event("mode_changed", %{"room" => %{"mode" => new_mode}}, socket) do
     {:noreply, set_room_mode(socket, new_mode)}
   end
+
+  @impl true
+  def handle_event("select_card", %{"id" => id}, socket)
+      when id == socket.assigns.selected_card_id,
+      do: {:noreply, assign(socket, selected_card_id: nil)}
+
+  def handle_event("select_card", %{"id" => id}, socket),
+    do: {:noreply, assign(socket, selected_card_id: id)}
 
   @impl true
   def handle_info({:room_state, %RoomState{} = state} = _event, socket) do
