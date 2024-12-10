@@ -7,17 +7,13 @@ defmodule PlanningPokerWeb.RoomLive.Components.Cards do
 
   def card(assigns) do
     ~H"""
-    <button class={get_card_class(@selected?)} {@rest}>
+    <button
+      class="flex h-20 w-14 items-center justify-center rounded-sm border border-white bg-blue-800 text-center text-white shadow data-[selected]:bg-green-800 hover:bg-blue-700 hover:data-[selected]:bg-green-700"
+      data-selected={@selected?}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </button>
     """
   end
-
-  defp get_card_class(true),
-    do:
-      "block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow bg-green-800 hover:bg-green-700 text-white"
-
-  defp get_card_class(false),
-    do:
-      "block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow bg-blue-800 hover:bg-blue-700 text-white"
 end
