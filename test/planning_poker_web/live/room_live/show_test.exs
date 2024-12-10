@@ -14,16 +14,24 @@ defmodule PlanningPokerWeb.RoomLive.ShowTest do
 
     test "can change room mode", %{conn: conn} do
       room_id = room_fixture()
+      topic = "room:#{room_id}"
+      Phoenix.PubSub.subscribe(PlanningPoker.PubSub, topic)
+
       {:ok, view, _html} = live(conn, ~p"/#{room_id}")
 
-      assert view
-             |> element("form")
-             |> render_change(%{"room" => %{"id" => room_id, "mode" => "fibonacci"}}) =~
-               "Mode: fibonacci"
+      # First assert the initial state
+      assert render(view) =~ "Mode: mountain_goat"
 
-      # Verify the state was actually updated
-      assert {:ok, updated_state} = PlanningPoker.Rooms.get_room_state(room_id)
-      assert updated_state.mode == :fibonacci
+      # Perform the change
+      view
+      |> element("form")
+      |> render_change(%{"room" => %{"mode" => "fibonacci"}})
+
+      # Wait for the broadcast to be processed
+      assert_receive {:room_state, %{mode: :fibonacci}}
+
+      # Now check the updated content
+      assert render(view) =~ "Mode: fibonacci"
     end
 
     test "redirects when room not found", %{conn: conn} do
