@@ -58,20 +58,20 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     ~H"""
     <div id="room" data-room-id={@room.id} phx-hook="GetUserId">
       <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 dark:text-white">
-        Room <%= @room.id %>
+        Room {@room.id}
       </h2>
 
       <div class="mb-4">
         <h3 class="text-lg font-semibold">Connected Users</h3>
         <ul class="list-disc pl-5">
           <%= for user_id <- get_user_ids(@users) do %>
-            <li class="text-sm text-gray-600"><%= user_id %></li>
+            <li class="text-sm text-gray-600">{user_id}</li>
           <% end %>
         </ul>
       </div>
 
       <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
-        Mode: <%= @room.mode %>
+        Mode: {@room.mode}
       </p>
       <form phx-change="mode_changed">
         <.input
@@ -93,7 +93,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
           phx-value-id={card.id}
           selected?={@selected_card_id == card.id}
         >
-          <%= card.label %>
+          {card.label}
         </.card>
         <%!-- <button
           :for={{label, value} <- get_cards(@room.deck)}

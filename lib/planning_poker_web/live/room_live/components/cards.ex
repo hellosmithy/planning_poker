@@ -1,14 +1,14 @@
 defmodule PlanningPokerWeb.RoomLive.Components.Cards do
   use Phoenix.Component
 
-  attr :selected?, :boolean, required: true
-  attr :rest, :global
-  slot :inner_block, required: true
+  attr(:selected?, :boolean, required: true)
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
 
   def card(assigns) do
     ~H"""
     <button class={get_card_class(@selected?)} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
