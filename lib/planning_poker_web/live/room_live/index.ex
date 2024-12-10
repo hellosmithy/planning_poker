@@ -14,22 +14,22 @@ defmodule PlanningPokerWeb.RoomLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 dark:text-white">
+    <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:px-16 md:text-3xl lg:text-4xl">
       Distributed scrum planning poker for estimating agile projects.
     </h2>
-    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
+    <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
       First person to create the room is the moderator. Share the url or room number with other team members to join the room.
     </p>
 
     <div class="flex flex-col space-y-4 sm:px-16">
       <form
         phx-submit="join_room"
-        class="max-w-sm mx-aut flex items-center w-full max-w-md mb-3 space-x-4"
+        class="mx-aut mb-3 flex w-full max-w-sm max-w-md items-center space-x-4"
       >
         <div class="mb-5">
           <label
             for="room_number"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >
             Enter room number
           </label>
@@ -38,17 +38,17 @@ defmodule PlanningPokerWeb.RoomLive.Index do
             id="room_number"
             name="room_number"
             placeholder="e.g. 123456"
-            class="block w-full p-3.5 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3.5 text-base text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
           />
         </div>
 
         <button
           type="submit"
-          class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-6 py-4 mt-4 mb-2 inline-flex items-center text-center me-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+          class="me-2 mt-4 mb-2 inline-flex items-center rounded-lg border border-gray-800 px-6 py-4 text-center text-sm font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
         >
           Join room
           <svg
-            class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+            class="ms-2 h-3.5 w-3.5 rtl:rotate-180"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -69,11 +69,11 @@ defmodule PlanningPokerWeb.RoomLive.Index do
         <button
           type="button"
           phx-click="create_room"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Create new room
           <svg
-            class="w-5 h-5 ms-2"
+            class="ms-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

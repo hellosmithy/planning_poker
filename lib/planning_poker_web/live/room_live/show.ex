@@ -57,7 +57,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   def render(assigns) do
     ~H"""
     <div id="room" data-room-id={@room.id} phx-hook="GetUserId">
-      <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl sm:px-16 dark:text-white">
+      <h2 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:px-16 md:text-3xl lg:text-4xl">
         Room {@room.id}
       </h2>
 
@@ -70,7 +70,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         </ul>
       </div>
 
-      <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
+      <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
         Mode: {@room.mode}
       </p>
       <form phx-change="mode_changed">
@@ -95,18 +95,10 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         >
           {card.label}
         </.card>
-        <%!-- <button
-          :for={{label, value} <- get_cards(@room.deck)}
-          class="block w-14 h-20 text-center flex items-center justify-center border border-white rounded-sm shadow hover:bg-blue-100 bg-blue-800 hover:bg-blue-700 text-white"
-          phx-click="select_card"
-          data-value={value}
-        >
-          <%= label %>
-        </button> --%>
       </div>
 
       <div>
-        <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 dark:text-gray-400">
+        <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
           You haven't estimated yet
         </p>
       </div>
@@ -114,7 +106,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="flex flex-wrap gap-4 py-8">
         <div
           :for={_user_id <- get_user_ids(@users)}
-          class="block w-14 h-20 flex items-center justify-center border-gray-500 border rounded-sm shadow"
+          class="flex h-20 w-14 items-center justify-center rounded-sm border border-gray-500 shadow"
         >
         </div>
       </div>
@@ -122,11 +114,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="flex gap-4 py-8">
         <button
           type="button"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Reset
           <svg
-            class="w-5 h-5 ms-2"
+            class="ms-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -144,11 +136,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
         <button
           type="button"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Reveal
           <svg
-            class="w-5 h-5 ms-2"
+            class="ms-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
