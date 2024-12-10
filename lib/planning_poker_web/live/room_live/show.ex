@@ -31,13 +31,11 @@ defmodule PlanningPokerWeb.RoomLive.Show do
        socket
        |> assign(:user_id, user_id)
        |> assign(:topic, topic)
-       |> assign(:selected_card_id, nil)
        |> assign_user_list()}
     else
       {:ok,
        socket
        |> assign(:user_id, user_id)
-       |> assign(:selected_card_id, nil)
        |> assign(:users, %{})}
     end
   end
@@ -89,9 +87,10 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="flex flex-wrap gap-4 py-8">
         <.card
           :for={card <- get_cards(@room.deck)}
-          phx-click="select_card"
-          phx-value-id={card.id}
-          selected?={@selected_card_id == card.id}
+          phx-click="set_selected_card"
+          phx-value-user-id={@user_id}
+          phx-value-card-id={if @room.user_selections[@user_id] == card.id, do: nil, else: card.id}
+          selected?={@room.user_selections[@user_id] == card.id}
         >
           {card.label}
         </.card>
@@ -109,6 +108,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
           class="flex h-20 w-14 items-center justify-center rounded-sm border border-gray-500 shadow"
         >
         </div>
+        <.card
+          :for={user_id <- get_user_ids(@users)}
+          face={:down}
+          selected?={@room.user_selections[user_id] != nil}
+        >
+        </.card>
       </div>
 
       <div class="flex gap-4 py-8">
@@ -166,16 +171,21 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @impl true
   def handle_event("mode_changed", %{"room" => %{"mode" => new_mode}}, socket) do
-    {:noreply, set_room_mode(socket, new_mode)}
+    Rooms.set_room_mode(socket.assigns.room.id, String.to_existing_atom(new_mode))
+    {:noreply, socket}
   end
 
-  @impl true
-  def handle_event("select_card", %{"id" => id}, socket)
-      when id == socket.assigns.selected_card_id,
-      do: {:noreply, assign(socket, selected_card_id: nil)}
+  def handle_event("set_selected_card", %{"user-id" => user_id, "card-id" => card_id}, socket) do
+    Logger.debug("Setting user selection for user: #{user_id} to card: #{card_id}")
+    Rooms.set_user_selection(socket.assigns.room.id, user_id, card_id)
+    {:noreply, socket}
+  end
 
-  def handle_event("select_card", %{"id" => id}, socket),
-    do: {:noreply, assign(socket, selected_card_id: id)}
+  def handle_event("set_selected_card", %{"user-id" => user_id}, socket) do
+    Logger.debug("Resetting user selection for user: #{user_id}")
+    Rooms.set_user_selection(socket.assigns.room.id, user_id, nil)
+    {:noreply, socket}
+  end
 
   @impl true
   def handle_info({:room_state, %RoomState{} = state} = _event, socket) do
@@ -220,13 +230,6 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     users
     |> Enum.map(fn {user_id, _presence} -> user_id end)
     |> Enum.sort()
-  end
-
-  @spec set_room_mode(socket :: Socket.t(), new_mode :: String.t()) :: Socket.t()
-  defp set_room_mode(socket, new_mode) do
-    new_mode_atom = String.to_existing_atom(new_mode)
-    Rooms.set_room_mode(socket.assigns.room.id, new_mode_atom)
-    assign(socket, room: %{socket.assigns.room | mode: new_mode_atom})
   end
 
   @spec presence_track_user(topic :: String.t(), user_id :: String.t()) ::

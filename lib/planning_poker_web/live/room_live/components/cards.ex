@@ -1,9 +1,10 @@
 defmodule PlanningPokerWeb.RoomLive.Components.Cards do
   use Phoenix.Component
 
-  attr(:selected?, :boolean, required: true)
+  attr(:selected?, :boolean, default: false)
+  attr(:face, :atom, default: :up)
   attr(:rest, :global)
-  slot(:inner_block, required: true)
+  slot(:inner_block)
 
   def card(assigns) do
     ~H"""

@@ -3,15 +3,20 @@ defmodule PlanningPoker.Rooms.RoomState do
 
   alias PlanningPoker.Rooms.Decks
 
-  @type t :: %__MODULE__{id: integer, mode: atom, deck: Decks.t()}
+  @type t :: %__MODULE__{
+          id: integer,
+          mode: atom,
+          deck: Decks.t(),
+          user_selections: %{String.t() => String.t()}
+        }
 
-  defstruct [:id, :mode, :deck]
+  defstruct [:id, :mode, :deck, :user_selections]
 
   @modes Decks.get_deck_types()
 
   @spec new(integer(), atom()) :: t
   def new(id, mode \\ :mountain_goat) do
-    %__MODULE__{id: id, mode: mode, deck: Decks.get_deck(mode)}
+    %__MODULE__{id: id, mode: mode, deck: Decks.get_deck(mode), user_selections: %{}}
   end
 
   @spec update(t, map()) :: t
@@ -23,6 +28,15 @@ defmodule PlanningPoker.Rooms.RoomState do
   @spec set_mode(t, atom()) :: t
   def set_mode(%__MODULE__{} = room, mode) when mode in @modes do
     %__MODULE__{room | mode: mode, deck: Decks.get_deck(mode)}
+  end
+
+  @spec set_user_selection(t, String.t(), String.t() | nil) :: t
+  def set_user_selection(%__MODULE__{} = room, user_id, nil) do
+    %__MODULE__{room | user_selections: Map.delete(room.user_selections, user_id)}
+  end
+
+  def set_user_selection(%__MODULE__{} = room, user_id, card_id) do
+    %__MODULE__{room | user_selections: Map.put(room.user_selections, user_id, card_id)}
   end
 
   @spec valid_mode?(atom()) :: boolean

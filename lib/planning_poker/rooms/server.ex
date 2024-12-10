@@ -29,6 +29,14 @@ defmodule PlanningPoker.Rooms.Server do
     GenServer.cast(via_tuple(room_id), {:update_room_state, partial_room_state})
   end
 
+  def set_room_mode(room_id, mode) do
+    GenServer.cast(via_tuple(room_id), {:set_room_mode, mode})
+  end
+
+  def set_user_selection(room_id, user_id, card_id) do
+    GenServer.cast(via_tuple(room_id), {:set_user_selection, user_id, card_id})
+  end
+
   def generate_room_id do
     :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
   end
@@ -60,6 +68,26 @@ defmodule PlanningPoker.Rooms.Server do
     new_room =
       room
       |> RoomState.update(partial_room_state)
+      |> broadcast_room_state()
+
+    {:noreply, new_room, @idle_timeout}
+  end
+
+  @impl GenServer
+  def handle_cast({:set_room_mode, mode}, room) do
+    new_room =
+      room
+      |> RoomState.set_mode(mode)
+      |> broadcast_room_state()
+
+    {:noreply, new_room, @idle_timeout}
+  end
+
+  @impl GenServer
+  def handle_cast({:set_user_selection, user_id, card_id}, room) do
+    new_room =
+      room
+      |> RoomState.set_user_selection(user_id, card_id)
       |> broadcast_room_state()
 
     {:noreply, new_room, @idle_timeout}
