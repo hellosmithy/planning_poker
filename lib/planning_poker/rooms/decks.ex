@@ -80,4 +80,9 @@ defmodule PlanningPoker.Rooms.Decks do
   def get_deck(type) do
     {type, @decks[type]}
   end
+
+  @spec get_card_by_id(t(), String.t()) :: Card.t() | nil
+  def get_card_by_id({_, deck}, card_id) do
+    Enum.find(deck, fn card -> card.id == card_id end)
+  end
 end

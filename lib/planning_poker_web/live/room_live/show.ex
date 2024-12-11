@@ -97,8 +97,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div>
-        <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
-          You haven't estimated yet
+        <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+          <%= case get_selection(@room, @user_id) do %>
+            <% nil -> %>
+              You haven't estimated yet
+            <% card -> %>
+              You have estimated {get_estimate(card, :label)}
+          <% end %>
         </p>
       </div>
 
@@ -245,4 +250,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   defp get_cards({_, cards}) do
     cards
   end
+
+  @spec get_selection(room :: RoomState.t(), user_id :: String.t()) :: Card.t() | nil
+  defp get_selection(room, user_id),
+    do: Decks.get_card_by_id(room.deck, room.user_selections[user_id])
+
+  @spec get_estimate(card :: Card.t() | nil, :label | :value) :: String.t() | integer() | nil
+  defp get_estimate(nil, _), do: nil
+  defp get_estimate(card, :label), do: card.label
+  defp get_estimate(card, :value), do: card.value
 end
