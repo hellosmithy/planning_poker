@@ -103,17 +103,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <div
-          :for={_user_id <- get_user_ids(@users)}
-          class="flex h-20 w-14 items-center justify-center rounded-sm border border-gray-500 shadow"
-        >
-        </div>
-        <.card
-          :for={user_id <- get_user_ids(@users)}
-          face={:down}
-          selected?={@room.user_selections[user_id] != nil}
-        >
-        </.card>
+        <%= for user_id <- get_user_ids(@users) do %>
+          <%= if @room.user_selections[user_id] != nil do %>
+            <.card face={:down} selected?={user_id == @user_id}></.card>
+          <% else %>
+            <.empty_card />
+          <% end %>
+        <% end %>
       </div>
 
       <div class="flex gap-4 py-8">
