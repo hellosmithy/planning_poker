@@ -60,6 +60,7 @@ defmodule PlanningPoker.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:nanoid, "~> 2.1.0"},
+      {:mnemonic_slugs, "~> 0.0.3"},
 
       # Test
       {:wallaby, "~> 0.30", runtime: false, only: :test},

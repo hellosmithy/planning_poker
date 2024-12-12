@@ -21,6 +21,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   @impl true
   def mount(%{"id" => room_id}, session, socket) do
     user_id = session["user_id"]
+    user_name = session["user_name"]
 
     if connected?(socket) do
       topic = "room:#{room_id}"
@@ -30,12 +31,14 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       {:ok,
        socket
        |> assign(:user_id, user_id)
+       |> assign(:user_name, user_name)
        |> assign(:topic, topic)
        |> assign_user_list()}
     else
       {:ok,
        socket
        |> assign(:user_id, user_id)
+       |> assign(:user_name, user_name)
        |> assign(:users, %{})}
     end
   end
@@ -60,7 +63,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </h2>
 
       <div class="mb-4">
-        <h3 class="text-lg font-semibold">Connected Users</h3>
+        <h3 class="text-lg font-semibold text-white">Connected Users</h3>
         <ul class="list-disc pl-5">
           <%= for user_id <- get_user_ids(@users) do %>
             <li class="text-sm text-gray-600">{user_id}</li>
@@ -108,7 +111,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <%= for user_id <- get_user_ids(@users) do %>
+        <%= for user_id <- @users do %>
           <%= if @room.user_selections[user_id] != nil do %>
             <.card face={:down} selected?={user_id == @user_id}></.card>
           <% else %>
@@ -223,14 +226,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @spec assign_user_list(socket :: Socket.t()) :: Socket.t()
   defp assign_user_list(socket) do
-    assign(socket, :users, Presence.list(socket.assigns.topic))
-  end
+    users =
+      Presence.list(socket.assigns.topic)
+      |> Enum.map(fn {user_id, _presence} -> user_id end)
+      |> Enum.sort()
 
-  @spec get_user_ids(users :: Phoenix.Presence.presences()) :: [String.t()]
-  defp get_user_ids(users) do
-    users
-    |> Enum.map(fn {user_id, _presence} -> user_id end)
-    |> Enum.sort()
+    assign(socket, :users, users)
   end
 
   @spec presence_track_user(topic :: String.t(), user_id :: String.t()) ::
