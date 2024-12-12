@@ -66,12 +66,27 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         <h3 class="text-lg font-semibold text-white">Connected Users</h3>
         <ul class="list-disc pl-5">
           <%= for user <- @users do %>
-            <div class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
-              <span class="font-medium text-gray-600 dark:text-gray-300" title={user.name}>
+            <div
+              class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600"
+              data-tooltip-target={"tooltip-user-#{user.id}"}
+            >
+              <span
+                class="cursor-default font-medium text-gray-600 dark:text-gray-300"
+                title={user.name}
+              >
                 {get_name_initials(user.name)}
               </span>
               <span class="absolute bottom-0 left-7 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-400 dark:border-gray-800">
               </span>
+            </div>
+            <div
+              role="tooltip"
+              id={"tooltip-user-#{user.id}"}
+              data-tooltip={"tooltip-user-#{user.id}"}
+              data-tooltip-placement="bottom"
+              class="font-sans invisible absolute z-50 whitespace-normal break-words rounded-lg bg-black px-3 py-1.5 text-sm font-normal text-white focus:outline-none"
+            >
+              {user.name}
             </div>
           <% end %>
         </ul>
