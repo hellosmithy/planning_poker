@@ -26,7 +26,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     if connected?(socket) do
       topic = "room:#{room_id}"
       PubSub.subscribe(@pubsub_server, topic)
-      presence_track_user(topic, user_id)
+      presence_track_user(topic, user_id, user_name)
 
       {:ok,
        socket
@@ -65,13 +65,14 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="mb-4">
         <h3 class="text-lg font-semibold text-white">Connected Users</h3>
         <ul class="list-disc pl-5">
-          <%= for user_id <- @users do %>
+          <%= for user <- @users do %>
             <div class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
-              <span class="font-medium text-gray-600 dark:text-gray-300" title={user_id}>_</span>
+              <span class="font-medium text-gray-600 dark:text-gray-300" title={user.name}>
+                {get_name_initials(user.name)}
+              </span>
               <span class="absolute bottom-0 left-7 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-400 dark:border-gray-800">
               </span>
             </div>
-            <span :if={user_id == @user_id} class="text-white">{@user_name}</span>
           <% end %>
         </ul>
       </div>
@@ -116,9 +117,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div class="flex flex-wrap gap-4 py-8">
-        <%= for user_id <- @users do %>
-          <%= if @room.user_selections[user_id] != nil do %>
-            <.card face={:down} selected?={user_id == @user_id}></.card>
+        <%= for user <- @users do %>
+          <%= if @room.user_selections[user.id] != nil do %>
+            <.card face={:down} selected?={user.id == @user_id}></.card>
           <% else %>
             <.empty_card />
           <% end %>
@@ -233,22 +234,22 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   defp assign_user_list(socket) do
     users =
       Presence.list(socket.assigns.topic)
-      |> Enum.map(fn {user_id, _presence} -> user_id end)
-      |> Enum.sort()
+      |> Enum.map(fn {user_id, %{metas: [meta | _]}} -> %{id: user_id, name: meta.user_name} end)
+      |> Enum.sort_by(&Map.get(&1, :id))
 
     assign(socket, :users, users)
   end
 
-  @spec presence_track_user(topic :: String.t(), user_id :: String.t()) ::
+  @spec presence_track_user(topic :: String.t(), user_id :: String.t(), user_name :: String.t()) ::
           {:ok, ref :: binary()} | {:error, reason :: term()}
-  defp presence_track_user(topic, user_id) do
+  defp presence_track_user(topic, user_id, user_name) do
     Logger.debug("Presence tracking user: #{user_id}")
 
     Presence.track(
       self(),
       topic,
       user_id,
-      %{joined_at: inspect(System.system_time(:second))}
+      %{joined_at: inspect(System.system_time(:second)), user_name: user_name}
     )
   end
 
@@ -265,4 +266,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   defp get_estimate(nil, _), do: nil
   defp get_estimate(card, :label), do: card.label
   defp get_estimate(card, :value), do: card.value
+
+  @spec get_name_initials(String.t()) :: String.t()
+  defp get_name_initials(name) do
+    name
+    |> String.split(" ")
+    |> Enum.map(&String.at(&1, 0))
+    |> Enum.join("")
+  end
 end
