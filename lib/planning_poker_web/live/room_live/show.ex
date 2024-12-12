@@ -65,8 +65,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="mb-4">
         <h3 class="text-lg font-semibold text-white">Connected Users</h3>
         <ul class="list-disc pl-5">
-          <%= for user_id <- get_user_ids(@users) do %>
-            <li class="text-sm text-gray-600">{user_id}</li>
+          <%= for user_id <- @users do %>
+            <div class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
+              <span class="font-medium text-gray-600 dark:text-gray-300" title={user_id}>_</span>
+              <span class="absolute bottom-0 left-7 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-400 dark:border-gray-800">
+              </span>
+            </div>
+            <span :if={user_id == @user_id} class="text-white">{@user_name}</span>
           <% end %>
         </ul>
       </div>
