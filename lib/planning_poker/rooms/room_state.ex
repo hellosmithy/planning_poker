@@ -27,7 +27,7 @@ defmodule PlanningPoker.Rooms.RoomState do
 
   @spec set_mode(t, atom()) :: t
   def set_mode(%__MODULE__{} = room, mode) when mode in @modes do
-    %__MODULE__{room | mode: mode, deck: Decks.get_deck(mode)}
+    %__MODULE__{room | mode: mode, deck: Decks.get_deck(mode), user_selections: %{}}
   end
 
   @spec set_user_selection(t, String.t(), String.t() | nil) :: t
@@ -38,6 +38,9 @@ defmodule PlanningPoker.Rooms.RoomState do
   def set_user_selection(%__MODULE__{} = room, user_id, card_id) do
     %__MODULE__{room | user_selections: Map.put(room.user_selections, user_id, card_id)}
   end
+
+  @spec reset_selections(t) :: t()
+  def reset_selections(%__MODULE__{} = room), do: %__MODULE__{room | user_selections: %{}}
 
   @spec valid_mode?(atom()) :: boolean
   def valid_mode?(mode), do: mode in @modes

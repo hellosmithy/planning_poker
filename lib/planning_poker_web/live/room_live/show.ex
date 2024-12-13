@@ -144,6 +144,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="flex gap-4 py-8">
         <button
           type="button"
+          phx-click="reset_selections"
           class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Reset
@@ -200,15 +201,24 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event("set_selected_card", %{"user-id" => user_id, "card-id" => card_id}, socket) do
     Logger.debug("Setting user selection for user: #{user_id} to card: #{card_id}")
     Rooms.set_user_selection(socket.assigns.room.id, user_id, card_id)
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event("set_selected_card", %{"user-id" => user_id}, socket) do
     Logger.debug("Resetting user selection for user: #{user_id}")
     Rooms.set_user_selection(socket.assigns.room.id, user_id, nil)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("reset_selections", _, socket) do
+    Logger.debug("Resetting user selections")
+    Rooms.reset_selections(socket.assigns.room.id)
     {:noreply, socket}
   end
 
