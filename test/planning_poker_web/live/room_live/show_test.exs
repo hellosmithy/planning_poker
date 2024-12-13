@@ -28,7 +28,7 @@ defmodule PlanningPokerWeb.RoomLive.ShowTest do
       |> render_change(%{"room" => %{"mode" => "fibonacci"}})
 
       # Wait for the broadcast to be processed
-      assert_receive {:room_state, %{mode: :fibonacci}}
+      assert_receive {:room_state, %{mode: :fibonacci}, :set_room_mode}
 
       # Now check the updated content
       assert render(view) =~ "Mode: fibonacci"

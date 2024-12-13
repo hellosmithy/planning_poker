@@ -72,7 +72,7 @@ defmodule PlanningPoker.Rooms.Server do
     new_room =
       room
       |> RoomState.update(partial_room_state)
-      |> broadcast_room_state()
+      |> broadcast_room_state(:update_room_state)
 
     {:noreply, new_room, @idle_timeout}
   end
@@ -82,7 +82,7 @@ defmodule PlanningPoker.Rooms.Server do
     new_room =
       room
       |> RoomState.set_mode(mode)
-      |> broadcast_room_state()
+      |> broadcast_room_state(:set_room_mode)
 
     {:noreply, new_room, @idle_timeout}
   end
@@ -92,7 +92,7 @@ defmodule PlanningPoker.Rooms.Server do
     new_room =
       room
       |> RoomState.set_user_selection(user_id, card_id)
-      |> broadcast_room_state()
+      |> broadcast_room_state(:set_user_selection)
 
     {:noreply, new_room, @idle_timeout}
   end
@@ -102,7 +102,7 @@ defmodule PlanningPoker.Rooms.Server do
     new_room =
       room
       |> RoomState.reset_selections()
-      |> broadcast_room_state()
+      |> broadcast_room_state(:reset_selections)
 
     {:noreply, new_room, @idle_timeout}
   end
@@ -113,8 +113,9 @@ defmodule PlanningPoker.Rooms.Server do
     {:stop, :normal, state}
   end
 
-  defp broadcast_room_state(%RoomState{} = state) do
-    PubSub.broadcast(@pubsub_server, "room:#{state.id}", {:room_state, state})
+  @spec broadcast_room_state(RoomState.t(), term()) :: RoomState.t()
+  defp broadcast_room_state(%RoomState{} = state, update_type) do
+    PubSub.broadcast(@pubsub_server, "room:#{state.id}", {:room_state, state, update_type})
     state
   end
 end

@@ -219,17 +219,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   def handle_event("reset_selections", _, socket) do
     Logger.debug("Resetting user selections")
     Rooms.reset_selections(socket.assigns.room.id)
-    {:noreply, socket}
+    {:noreply, socket |> put_flash(:info, "Board reset")}
   end
 
   @impl true
-  def handle_info({:room_state, %RoomState{} = state} = _event, socket) do
-    updated_socket =
-      socket
-      |> clear_flash()
-      |> assign(:room, state)
-
-    {:noreply, updated_socket}
+  def handle_info({:room_state, %RoomState{} = state, update_type} = _event, socket) do
+    {:noreply, socket |> update_room_state(state, update_type)}
   end
 
   @impl true
@@ -298,5 +293,16 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     |> String.split(" ")
     |> Enum.map(&String.at(&1, 0))
     |> Enum.join("")
+  end
+
+  defp update_room_state(socket, room_state, :reset_selections) do
+    socket
+    |> assign(:room, room_state)
+  end
+
+  defp update_room_state(socket, room_state, _) do
+    socket
+    |> clear_flash()
+    |> assign(:room, room_state)
   end
 end
