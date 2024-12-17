@@ -175,7 +175,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
         <button
           type="button"
-          disabled={not has_selections?(@room) or @room.reveal?}
+          disabled={@room.reveal? or not has_selections?(@room)}
           phx-click="reveal"
           class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-auto disabled:bg-gray-400 disabled:opacity-50 disabled:hover:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
