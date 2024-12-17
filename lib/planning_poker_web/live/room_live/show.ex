@@ -115,6 +115,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
           phx-value-user-id={@user_id}
           phx-value-card-id={if @room.user_selections[@user_id] == card.id, do: nil, else: card.id}
           selected?={@room.user_selections[@user_id] == card.id}
+          disabled?={@room.reveal?}
         >
           {card.label}
         </.card>
