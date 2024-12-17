@@ -134,7 +134,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <div class="flex flex-wrap gap-4 py-8">
         <%= for user <- @users do %>
           <%= if @room.user_selections[user.id] != nil do %>
-            <.card face={:down} selected?={user.id == @user_id}></.card>
+            <%= if @room.reveal? do %>
+              <.card face={:up} selected?={user.id == @user_id}>
+                {get_estimate(get_selection(@room, user.id), :value)}
+              </.card>
+            <% else %>
+              <.card face={:down} selected?={user.id == @user_id}></.card>
+            <% end %>
           <% else %>
             <.empty_card />
           <% end %>
@@ -167,6 +173,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
         <button
           type="button"
+          phx-click="reveal"
           class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Reveal
@@ -220,6 +227,13 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     Logger.debug("Resetting user selections")
     Rooms.reset_selections(socket.assigns.room.id)
     {:noreply, socket |> put_flash(:info, "Board reset")}
+  end
+
+  @impl true
+  def handle_event("reveal", _, socket) do
+    Logger.debug("Revealing user selections")
+    Rooms.reveal_selections(socket.assigns.room.id)
+    {:noreply, socket}
   end
 
   @impl true

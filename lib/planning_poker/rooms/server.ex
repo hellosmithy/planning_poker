@@ -41,6 +41,10 @@ defmodule PlanningPoker.Rooms.Server do
     GenServer.cast(via_tuple(room_id), {:reset_selections})
   end
 
+  def reveal_selections(room_id) do
+    GenServer.cast(via_tuple(room_id), {:reveal_selections})
+  end
+
   def generate_room_id do
     :rand.uniform(999_999) |> Integer.to_string() |> String.pad_leading(6, "0")
   end
@@ -103,6 +107,16 @@ defmodule PlanningPoker.Rooms.Server do
       room
       |> RoomState.reset_selections()
       |> broadcast_room_state(:reset_selections)
+
+    {:noreply, new_room, @idle_timeout}
+  end
+
+  @impl GenServer
+  def handle_cast({:reveal_selections}, room) do
+    new_room =
+      room
+      |> RoomState.reveal_selections()
+      |> broadcast_room_state(:reveal_selections)
 
     {:noreply, new_room, @idle_timeout}
   end

@@ -40,6 +40,10 @@ defmodule PlanningPoker.Rooms do
     Server.reset_selections(room_id)
   end
 
+  def reveal_selections(room_id) do
+    Server.reveal_selections(room_id)
+  end
+
   defp generate_room_id(retries \\ 5)
 
   defp generate_room_id(0), do: {:error, :room_id_collision}

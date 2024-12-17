@@ -7,16 +7,23 @@ defmodule PlanningPoker.Rooms.RoomState do
           id: integer,
           mode: atom,
           deck: Decks.t(),
-          user_selections: %{String.t() => String.t()}
+          user_selections: %{String.t() => String.t()},
+          reveal?: boolean
         }
 
-  defstruct [:id, :mode, :deck, :user_selections]
+  defstruct [:id, :mode, :deck, :user_selections, :reveal?]
 
   @modes Decks.get_deck_types()
 
   @spec new(integer(), atom()) :: t
   def new(id, mode \\ :mountain_goat) do
-    %__MODULE__{id: id, mode: mode, deck: Decks.get_deck(mode), user_selections: %{}}
+    %__MODULE__{
+      id: id,
+      mode: mode,
+      deck: Decks.get_deck(mode),
+      user_selections: %{},
+      reveal?: false
+    }
   end
 
   @spec update(t, map()) :: t
@@ -40,7 +47,12 @@ defmodule PlanningPoker.Rooms.RoomState do
   end
 
   @spec reset_selections(t) :: t()
-  def reset_selections(%__MODULE__{} = room), do: %__MODULE__{room | user_selections: %{}}
+  def reset_selections(%__MODULE__{} = room) do
+    %__MODULE__{room | user_selections: %{}, reveal?: false}
+  end
+
+  @spec reveal_selections(t) :: t
+  def reveal_selections(%__MODULE__{} = room), do: %__MODULE__{room | reveal?: true}
 
   @spec valid_mode?(atom()) :: boolean
   def valid_mode?(mode), do: mode in @modes
