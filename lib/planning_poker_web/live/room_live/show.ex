@@ -140,7 +140,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
             <% selected_card_id -> %>
               <%= if @room.reveal? do %>
                 <.card face={:up} selected?={user.id == @user_id}>
-                  {get_estimate(Decks.get_card_by_id(@room.deck, selected_card_id), :value)}
+                  {get_estimate(Decks.get_card_by_id(@room.deck, selected_card_id), :label)}
                 </.card>
               <% else %>
                 <.card face={:down} selected?={user.id == @user_id}></.card>
