@@ -133,16 +133,17 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
       <div class="flex flex-wrap gap-4 py-8">
         <%= for user <- @users do %>
-          <%= if @room.user_selections[user.id] != nil do %>
-            <%= if @room.reveal? do %>
-              <.card face={:up} selected?={user.id == @user_id}>
-                {get_estimate(get_selection(@room, user.id), :value)}
-              </.card>
-            <% else %>
-              <.card face={:down} selected?={user.id == @user_id}></.card>
-            <% end %>
-          <% else %>
-            <.empty_card />
+          <%= case @room.user_selections[user.id] do %>
+            <% nil -> %>
+              <.empty_card />
+            <% selected_card_id -> %>
+              <%= if @room.reveal? do %>
+                <.card face={:up} selected?={user.id == @user_id}>
+                  {get_estimate(Decks.get_card_by_id(@room.deck, selected_card_id), :value)}
+                </.card>
+              <% else %>
+                <.card face={:down} selected?={user.id == @user_id}></.card>
+              <% end %>
           <% end %>
         <% end %>
       </div>
@@ -173,8 +174,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
         <button
           type="button"
+          disabled={not has_selections?(@room) or @room.reveal?}
           phx-click="reveal"
-          class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-auto disabled:bg-gray-400 disabled:opacity-50 disabled:hover:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Reveal
           <svg
@@ -318,5 +320,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     socket
     |> clear_flash()
     |> assign(:room, room_state)
+  end
+
+  defp has_selections?(room) do
+    Map.keys(room.user_selections) != []
   end
 end
