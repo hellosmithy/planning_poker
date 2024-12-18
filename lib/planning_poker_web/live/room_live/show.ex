@@ -8,6 +8,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
   alias PlanningPoker.Rooms
   alias PlanningPoker.Rooms.Decks
   alias PlanningPoker.Rooms.RoomState
+  alias PlanningPoker.Stats
   alias PlanningPokerWeb.Presence
   alias Phoenix.LiveView.Socket
   alias Phoenix.PubSub
@@ -146,6 +147,30 @@ defmodule PlanningPokerWeb.RoomLive.Show do
                 <.card face={:down} selected?={user.id == @user_id}></.card>
               <% end %>
           <% end %>
+        <% end %>
+      </div>
+
+      <div :if={@room.reveal?}>
+        <%= case get_average(@room) do %>
+          <% nil -> %>
+            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+              No average available
+            </p>
+          <% average -> %>
+            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+              Average: {average}
+            </p>
+        <% end %>
+
+        <%= case get_std_dev(@room) do %>
+          <% nil -> %>
+            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+              No standard deviation available
+            </p>
+          <% stdev -> %>
+            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+              Standard Deviation: {stdev}
+            </p>
         <% end %>
       </div>
 
@@ -325,5 +350,24 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   defp has_selections?(room) do
     Map.keys(room.user_selections) != []
+  end
+
+  defp get_selections(room) do
+    room.user_selections
+    |> Map.values()
+    |> Enum.map(&Decks.get_card_by_id(room.deck, &1).value)
+    |> Enum.filter(&is_number/1)
+  end
+
+  defp get_average(room) do
+    room
+    |> get_selections()
+    |> Stats.mean()
+  end
+
+  defp get_std_dev(room) do
+    room
+    |> get_selections()
+    |> Stats.standard_deviation()
   end
 end
