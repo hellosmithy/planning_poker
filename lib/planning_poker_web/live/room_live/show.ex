@@ -151,27 +151,12 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       </div>
 
       <div :if={@room.reveal?}>
-        <%= case get_average(@room) do %>
-          <% nil -> %>
-            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
-              No average available
-            </p>
-          <% average -> %>
-            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
-              Average: {average}
-            </p>
-        <% end %>
-
-        <%= case get_std_dev(@room) do %>
-          <% nil -> %>
-            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
-              No standard deviation available
-            </p>
-          <% stdev -> %>
-            <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
-              Standard Deviation: {stdev}
-            </p>
-        <% end %>
+        <p class="text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+          Average: {get_average(@room) || "n/a"}
+        </p>
+        <p class="text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl">
+          Standard Deviation: {get_stdev(@room) || "n/a"}
+        </p>
       </div>
 
       <div class="flex gap-4 py-8">
@@ -365,9 +350,9 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     |> Stats.mean()
   end
 
-  defp get_std_dev(room) do
+  defp get_stdev(room) do
     room
     |> get_selections()
-    |> Stats.standard_deviation()
+    |> Stats.stdev()
   end
 end

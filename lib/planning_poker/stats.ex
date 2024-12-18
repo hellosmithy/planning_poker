@@ -6,10 +6,10 @@ defmodule PlanningPoker.Stats do
     Enum.sum(values) / Enum.count(values)
   end
 
-  @spec standard_deviation([number]) :: number | nil
-  def standard_deviation([]), do: nil
+  @spec stdev([number]) :: number | nil
+  def stdev([]), do: nil
 
-  def standard_deviation(numbers) do
+  def stdev(numbers) do
     numbers
     |> variance()
     |> :math.sqrt()
