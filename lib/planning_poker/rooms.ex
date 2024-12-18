@@ -21,27 +21,23 @@ defmodule PlanningPoker.Rooms do
   end
 
   def get_room_state(room_id) do
-    try do
-      {:ok, Server.get_state(room_id)}
-    catch
-      :exit, {:noproc, _reason} -> {:error, :room_not_found}
-    end
+    call_or_error(fn -> Server.get_state(room_id) end, :room_not_found)
   end
 
   def set_room_mode(room_id, mode) do
-    Server.set_room_mode(room_id, mode)
+    call_or_error(fn -> Server.set_room_mode(room_id, mode) end, :room_not_found)
   end
 
   def set_user_selection(room_id, user_id, card_id) do
-    Server.set_user_selection(room_id, user_id, card_id)
+    call_or_error(fn -> Server.set_user_selection(room_id, user_id, card_id) end, :room_not_found)
   end
 
   def reset_selections(room_id) do
-    Server.reset_selections(room_id)
+    call_or_error(fn -> Server.reset_selections(room_id) end, :room_not_found)
   end
 
   def reveal_selections(room_id) do
-    Server.reveal_selections(room_id)
+    call_or_error(fn -> Server.reveal_selections(room_id) end, :room_not_found)
   end
 
   defp generate_room_id(retries \\ 5)
@@ -59,5 +55,14 @@ defmodule PlanningPoker.Rooms do
 
   defp room_exists?(room_id) do
     Registry.lookup(@registry, room_id) != []
+  end
+
+  defp call_or_error(fun, error_type) do
+    try do
+      {:ok, fun.()}
+    catch
+      :exit, {:noproc, _reason} -> {:error, error_type}
+      :error, reason -> {:error, reason}
+    end
   end
 end

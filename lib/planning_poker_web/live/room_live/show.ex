@@ -217,36 +217,80 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
   @impl true
   def handle_event("mode_changed", %{"room" => %{"mode" => new_mode}}, socket) do
-    Rooms.set_room_mode(socket.assigns.room.id, String.to_existing_atom(new_mode))
-    {:noreply, socket}
+    case Rooms.set_room_mode(socket.assigns.room.id, String.to_existing_atom(new_mode)) do
+      {:ok, room} ->
+        {:noreply, assign(socket, room: room)}
+
+      {:error, :room_not_found} ->
+        {:noreply, socket |> put_flash(:error, "Room not found!") |> redirect(to: "/")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
   def handle_event("set_selected_card", %{"user-id" => user_id, "card-id" => card_id}, socket) do
     Logger.debug("Setting user selection for user: #{user_id} to card: #{card_id}")
-    Rooms.set_user_selection(socket.assigns.room.id, user_id, card_id)
-    {:noreply, socket}
+
+    case Rooms.set_user_selection(socket.assigns.room.id, user_id, card_id) do
+      {:ok, room} ->
+        {:noreply, assign(socket, room: room)}
+
+      {:error, :room_not_found} ->
+        {:noreply, socket |> put_flash(:error, "Room not found!") |> redirect(to: "/")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
   def handle_event("set_selected_card", %{"user-id" => user_id}, socket) do
     Logger.debug("Resetting user selection for user: #{user_id}")
-    Rooms.set_user_selection(socket.assigns.room.id, user_id, nil)
-    {:noreply, socket}
+
+    case Rooms.set_user_selection(socket.assigns.room.id, user_id, nil) do
+      {:ok, room} ->
+        {:noreply, assign(socket, room: room)}
+
+      {:error, :room_not_found} ->
+        {:noreply, socket |> put_flash(:error, "Room not found!") |> redirect(to: "/")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
   def handle_event("reset_selections", _, socket) do
     Logger.debug("Resetting user selections")
-    Rooms.reset_selections(socket.assigns.room.id)
-    {:noreply, socket |> put_flash(:info, "Board reset")}
+
+    case Rooms.reset_selections(socket.assigns.room.id) do
+      {:ok, room} ->
+        {:noreply, socket |> assign(:room, room) |> put_flash(:info, "Board reset")}
+
+      {:error, :room_not_found} ->
+        {:noreply, socket |> put_flash(:error, "Room not found!") |> redirect(to: "/")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
   def handle_event("reveal", _, socket) do
     Logger.debug("Revealing user selections")
-    Rooms.reveal_selections(socket.assigns.room.id)
-    {:noreply, socket}
+
+    case Rooms.reveal_selections(socket.assigns.room.id) do
+      {:ok, room} ->
+        {:noreply, assign(socket, room: room)}
+
+      {:error, :room_not_found} ->
+        {:noreply, socket |> put_flash(:error, "Room not found!") |> redirect(to: "/")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true

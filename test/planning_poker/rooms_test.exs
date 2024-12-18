@@ -73,7 +73,7 @@ defmodule PlanningPoker.RoomsTest do
   describe "set_room_mode/2" do
     test "updates room mode" do
       {:ok, room_id} = Rooms.create_room()
-      assert :ok = Rooms.set_room_mode(room_id, :fibonacci)
+      assert {:ok, %RoomState{mode: :fibonacci}} = Rooms.set_room_mode(room_id, :fibonacci)
       assert {:ok, %RoomState{mode: :fibonacci}} = Rooms.get_room_state(room_id)
     end
   end

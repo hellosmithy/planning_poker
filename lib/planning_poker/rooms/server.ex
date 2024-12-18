@@ -26,23 +26,23 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   def update_state(room_id, partial_room_state) do
-    GenServer.cast(via_tuple(room_id), {:update_room_state, partial_room_state})
+    GenServer.call(via_tuple(room_id), {:update_room_state, partial_room_state})
   end
 
   def set_room_mode(room_id, mode) do
-    GenServer.cast(via_tuple(room_id), {:set_room_mode, mode})
+    GenServer.call(via_tuple(room_id), {:set_room_mode, mode})
   end
 
   def set_user_selection(room_id, user_id, card_id) do
-    GenServer.cast(via_tuple(room_id), {:set_user_selection, user_id, card_id})
+    GenServer.call(via_tuple(room_id), {:set_user_selection, user_id, card_id})
   end
 
   def reset_selections(room_id) do
-    GenServer.cast(via_tuple(room_id), {:reset_selections})
+    GenServer.call(via_tuple(room_id), {:reset_selections})
   end
 
   def reveal_selections(room_id) do
-    GenServer.cast(via_tuple(room_id), {:reveal_selections})
+    GenServer.call(via_tuple(room_id), {:reveal_selections})
   end
 
   def generate_room_id do
@@ -72,53 +72,53 @@ defmodule PlanningPoker.Rooms.Server do
   end
 
   @impl GenServer
-  def handle_cast({:update_room_state, partial_room_state}, room) do
+  def handle_call({:update_room_state, partial_room_state}, _, room) do
     new_room =
       room
       |> RoomState.update(partial_room_state)
       |> broadcast_room_state(:update_room_state)
 
-    {:noreply, new_room, @idle_timeout}
+    {:reply, new_room, new_room, @idle_timeout}
   end
 
   @impl GenServer
-  def handle_cast({:set_room_mode, mode}, room) do
+  def handle_call({:set_room_mode, mode}, _, room) do
     new_room =
       room
       |> RoomState.set_mode(mode)
       |> broadcast_room_state(:set_room_mode)
 
-    {:noreply, new_room, @idle_timeout}
+    {:reply, new_room, new_room, @idle_timeout}
   end
 
   @impl GenServer
-  def handle_cast({:set_user_selection, user_id, card_id}, room) do
+  def handle_call({:set_user_selection, user_id, card_id}, _, room) do
     new_room =
       room
       |> RoomState.set_user_selection(user_id, card_id)
       |> broadcast_room_state(:set_user_selection)
 
-    {:noreply, new_room, @idle_timeout}
+    {:reply, new_room, new_room, @idle_timeout}
   end
 
   @impl GenServer
-  def handle_cast({:reset_selections}, room) do
+  def handle_call({:reset_selections}, _, room) do
     new_room =
       room
       |> RoomState.reset_selections()
       |> broadcast_room_state(:reset_selections)
 
-    {:noreply, new_room, @idle_timeout}
+    {:reply, new_room, new_room, @idle_timeout}
   end
 
   @impl GenServer
-  def handle_cast({:reveal_selections}, room) do
+  def handle_call({:reveal_selections}, _, room) do
     new_room =
       room
       |> RoomState.reveal_selections()
       |> broadcast_room_state(:reveal_selections)
 
-    {:noreply, new_room, @idle_timeout}
+    {:reply, new_room, new_room, @idle_timeout}
   end
 
   @impl true
