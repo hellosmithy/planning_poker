@@ -96,7 +96,7 @@ defmodule PlanningPokerWeb.RoomLive.Show do
       <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
         Mode: {@room.mode}
       </p>
-      <form phx-change="mode_changed">
+      <form phx-change={JS.push("mode_changed", loading: "#deck-choices")}>
         <.input
           type="select"
           id="room_mode"
@@ -109,7 +109,10 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         />
       </form>
 
-      <div class="flex flex-wrap gap-4 py-8">
+      <div
+        id="deck-choices"
+        class="flex flex-wrap gap-4 py-8 transition-opacity duration-300 phx-change-loading:opacity-50"
+      >
         <.card
           :for={card <- get_cards(@room.deck)}
           phx-click="set_selected_card"
