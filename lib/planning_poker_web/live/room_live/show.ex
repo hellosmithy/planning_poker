@@ -31,6 +31,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
 
       {:ok,
        socket
+       |> assign(:page_title, "Room #{room_id}")
+       |> assign(:room_id, room_id)
        |> assign(:user_id, user_id)
        |> assign(:user_name, user_name)
        |> assign(:topic, topic)
@@ -38,6 +40,8 @@ defmodule PlanningPokerWeb.RoomLive.Show do
     else
       {:ok,
        socket
+       |> assign(:page_title, "Room #{room_id}")
+       |> assign(:room_id, room_id)
        |> assign(:user_id, user_id)
        |> assign(:user_name, user_name)
        |> assign(:users, %{})}
@@ -93,9 +97,6 @@ defmodule PlanningPokerWeb.RoomLive.Show do
         </ul>
       </div>
 
-      <p class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-400 sm:px-16 lg:text-xl">
-        Mode: {@room.mode}
-      </p>
       <form phx-change={JS.push("mode_changed", loading: "#deck-choices")}>
         <.input
           type="select"
